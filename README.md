@@ -8,7 +8,7 @@ The Enhanced version of Quickshop for CMS2018
 | Toggle Custom License Plates  |  `V`  |
 
 **Tunned Parts**: With tunned parts enable when you buy any part that can be tunned it will add it, if not it will add the standard one<br>
-**Group Parts**: With group parts enable when you buy tires or wheels they will be already on a group balanced<br>
+**Group Parts**: With group parts enable when you buy tires or wheels they it will add a group already balanced, the suspension group is buyable to <br>
 **Custom License Plates**: With custom license plates enable when you buy license plates it will check for the name/number of that license plate
 <br><br>
 **_Note 1_**: If you have the tunned parts **enable** and don't have enough money to afford the part, it will automatically buy the standard one<br>
