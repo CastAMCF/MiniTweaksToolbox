@@ -1,7 +1,6 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Harmony12;
 using UnityEngine;
 
@@ -16,101 +15,105 @@ namespace MiniTweaksToolbox
 		{
 			Main.mod.Logger.Log(windowName);
 			Main.mod.Logger.Log(type);
-			Main.mod.Logger.Log(ID[0]);
 
-			if (type.Equals("item"))
+			try
 			{
-				if (windowName.Equals("NewChooseItemsMenuPaintshopPart") || windowName.Equals("NewChooseEngineMenu"))
+				if (type.Equals("item") && !(windowName.Equals("NewChooseItemsMenuPaintshopPart") || windowName.Equals("NewChooseEngineMenu")))
 				{
-					return;
-				}
-				else if (Inventory.Get().MakeInventoryMount(ID[0]) == 0)
-				{
-					GameScript.Get().SelectPartToMount("999", 0f, Color.black, true, 0);
-					__instance.ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
-
-					type = "none";
-				}
-				else if (Settings.autoSelect)
-				{
-					NewInventoryItem newInventoryItem = (from i in Inventory.Get().GetItems(ID[0])
-														 orderby i.Condition descending
-														 select i).ToList()[0];
-
-					UIManager.Get().ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newInventoryItem.ID) + " (" + Helper.ConditionToString(newInventoryItem.Condition) + ")", PopupType.Normal);
-
-					if (newInventoryItem.extraParameters.ContainsKey("PaintType"))
+					if (Inventory.Get().MakeInventoryMount(ID[0]) == 0)
 					{
-						GameScript.Get().SetSelectedPartToMountPaintType((int)newInventoryItem.extraParameters.GetFromKey("PaintType"));
+						GameScript.Get().SelectPartToMount("999", 0f, Color.black, true, 0);
+						__instance.ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
+
+						type = "none";
 					}
-
-                    if (ID[0].Equals("LicensePlate"))
-                    {
-						GameScript.Get().SelectPartToMount(GameScript.Get().GetIOMouseOverCarLoader().name, newInventoryItem.Condition, newInventoryItem.GetItemColor(), newInventoryItem.IsExamined, newInventoryItem.GetItemQuality());
-					}
-                    else
-                    {
-						GameScript.Get().SelectPartToMount(newInventoryItem.ID, newInventoryItem.Condition, newInventoryItem.GetItemColor(), newInventoryItem.IsExamined, newInventoryItem.GetItemQuality());
-
-					}
-
-					Inventory.Get().Delete(newInventoryItem);
-
-					type = "none";
-				}
-			}
-
-			if (type.Equals("group") && windowName.Equals("NewChooseItemsMenu") && Settings.autoSelect)
-			{
-				List<NewGroupItem> list2 = new List<NewGroupItem>();
-
-				if (ID[0].Contains("rim"))
-				{
-					int minRimSize = GameScript.Get().GetIOMouseOverCarLoader2().GetMinRimSize(true);
-					float rearWheelMaxSize = GameScript.Get().GetIOMouseOverCarLoader2().GetRearWheelMaxSize();
-					list2 = GroupInventory.Get().GetRimsWithSizeGreaterOrEqualThanAndLessThan(minRimSize, rearWheelMaxSize);
-				}
-				else if (ID[0].Contains("amortyzator"))
-				{
-					list2 = GroupInventory.Get().GetGroupInventory(ID[0]);
-				}
-				else
-				{
-					foreach (string id in ID)
+					else if (Settings.autoSelect)
 					{
-						if (GroupInventory.Get().GetGroupInventory(id) != null)
+						NewInventoryItem newInventoryItem = (from i in Inventory.Get().GetItems(ID[0])
+															 orderby i.Condition descending
+															 select i).ToList()[0];
+
+						__instance.ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newInventoryItem.ID) + " (" + Helper.ConditionToString(newInventoryItem.Condition) + ")", PopupType.Normal);
+
+						if (newInventoryItem.extraParameters.ContainsKey("PaintType"))
 						{
-							list2.AddRange(GroupInventory.Get().GetGroupInventory(id));
+							GameScript.Get().SetSelectedPartToMountPaintType((int)newInventoryItem.extraParameters.GetFromKey("PaintType"));
+						}
+
+						if (ID[0].Equals("LicensePlate"))
+						{
+							GameScript.Get().SelectPartToMount(GameScript.Get().GetIOMouseOverCarLoader().name, newInventoryItem.Condition, newInventoryItem.GetItemColor(), newInventoryItem.IsExamined, newInventoryItem.GetItemQuality());
+						}
+						else
+						{
+							GameScript.Get().SelectPartToMount(newInventoryItem.ID, newInventoryItem.Condition, newInventoryItem.GetItemColor(), newInventoryItem.IsExamined, newInventoryItem.GetItemQuality());
+
+						}
+
+						Inventory.Get().Delete(newInventoryItem);
+
+						type = "none";
+					}
+
+				}
+
+				if (type.Equals("group") && windowName.Equals("NewChooseItemsMenu") && Settings.autoSelect)
+				{
+					List<NewGroupItem> list2 = new List<NewGroupItem>();
+
+					if (ID[0].Contains("rim"))
+					{
+						int minRimSize = GameScript.Get().GetIOMouseOverCarLoader2().GetMinRimSize(true);
+						float rearWheelMaxSize = GameScript.Get().GetIOMouseOverCarLoader2().GetRearWheelMaxSize();
+						list2 = GroupInventory.Get().GetRimsWithSizeGreaterOrEqualThanAndLessThan(minRimSize, rearWheelMaxSize);
+					}
+					else if (ID[0].Contains("amortyzator"))
+					{
+						list2 = GroupInventory.Get().GetGroupInventory(ID[0]);
+					}
+					else
+					{
+						foreach (string id in ID)
+						{
+							if (GroupInventory.Get().GetGroupInventory(id) != null)
+							{
+								list2.AddRange(GroupInventory.Get().GetGroupInventory(id));
+							}
 						}
 					}
+
+					if (list2 == null || list2.Count() == 0)
+					{
+						__instance.ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
+						type = "none";
+					}
+					else
+					{
+						NewGroupItem newGroupItem = (from i in list2
+													 orderby Helper.GetAvargeGroupCondition(i) descending
+													 select i).ToList()[0];
+
+						__instance.ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newGroupItem.GroupName) + " (" + Helper.ConditionToString(Helper.GetAvargeGroupCondition(newGroupItem)) + ")", PopupType.Normal);
+
+						GameManager.Get().MountGroup(newGroupItem.UId);
+						type = "none";
+					}
 				}
 
-				if (list2 == null || list2.Count() == 0)
-				{
-					__instance.ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
-					type = "none";
-                }
-                else
-                {
-					NewGroupItem newGroupItem = (from i in list2
-												 orderby Helper.GetAvargeGroupCondition(i) descending
-												 select i).ToList()[0];
-
-					UIManager.Get().ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newGroupItem.GroupName) + " (" + Helper.ConditionToString(Helper.GetAvargeGroupCondition(newGroupItem)) + ")", PopupType.Normal);
-
-					GameManager.Get().MountGroup(newGroupItem.UId);
-					type = "none";
-				}
+			}
+			catch (Exception ex)
+			{
+				Main.mod.Logger.LogException(ex);
 			}
 		}
 	}
 
 	[HarmonyPatch(typeof(UIManager))]
 	[HarmonyPatch("initCreateGroupMenu")]
-	public static class UIManager_Patcher_initCreateGroupMenu
+	public static class UIManager_Patcher_initCreateGroupMenu_Prefix
 	{
 		[HarmonyPrefix]
-		public static void UIManager_initCreateGroupMenu(UIManager __instance, ref string windowName)
+		public static void UIManager_initCreateGroupMenu_Prefix(UIManager __instance, ref string windowName)
 		{
 			Main.mod.Logger.Log(windowName);
 
@@ -121,8 +124,8 @@ namespace MiniTweaksToolbox
 				foreach (string item in GameScript.Get().GetGroupOfItems().ToArray())
 				{
 					List<NewInventoryItem> newInventoryItem = (from i in Inventory.Get().GetItems(item)
-																orderby i.Condition descending
-																select i).ToList();
+															   orderby i.Condition descending
+															   select i).ToList();
 
 					if (newInventoryItem.Count() > 0)
 					{
@@ -154,7 +157,7 @@ namespace MiniTweaksToolbox
 					newGroupItem.ItemList = new List<NewInventoryItem>();
                     foreach (NewInventoryItem newInventoryItem in newInventoryItems)
                     {
-						UIManager.Get().ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newInventoryItem.ID) + " (" + Helper.ConditionToString(newInventoryItem.Condition) + ")", PopupType.Normal);
+						__instance.ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newInventoryItem.ID) + " (" + Helper.ConditionToString(newInventoryItem.Condition) + ")", PopupType.Normal);
 						newGroupItem.ItemList.Add(newInventoryItem);
 					}
 
@@ -166,6 +169,20 @@ namespace MiniTweaksToolbox
 				
 			}
 			
+		}
+	}
+
+	[HarmonyPatch(typeof(UIManager))]
+	[HarmonyPatch("initCreateGroupMenu")]
+	public static class UIManager_Patcher_initCreateGroupMenu_Postfix
+	{
+		[HarmonyPostfix]
+		public static void UIManager_initCreateGroupMenu_Postfix(ref string windowName)
+		{
+			if (windowName.Equals("none") && Settings.autoSelect)
+			{
+				GameMode.Get().SetCurrentMode(GameMode.Get().GetPreviousMode());
+			}
 		}
 	}
 }
