@@ -16,6 +16,7 @@ namespace MiniTweaksToolbox
 		{
 			Main.mod.Logger.Log(windowName);
 			Main.mod.Logger.Log(type);
+			Main.mod.Logger.Log(ID[0]);
 
 			if (type.Equals("item"))
 			{
@@ -43,7 +44,15 @@ namespace MiniTweaksToolbox
 						GameScript.Get().SetSelectedPartToMountPaintType((int)newInventoryItem.extraParameters.GetFromKey("PaintType"));
 					}
 
-					GameScript.Get().SelectPartToMount(newInventoryItem.ID, newInventoryItem.Condition, newInventoryItem.GetItemColor(), newInventoryItem.IsExamined, newInventoryItem.GetItemQuality());
+                    if (ID[0].Equals("LicensePlate"))
+                    {
+						GameScript.Get().SelectPartToMount(GameScript.Get().GetIOMouseOverCarLoader().name, newInventoryItem.Condition, newInventoryItem.GetItemColor(), newInventoryItem.IsExamined, newInventoryItem.GetItemQuality());
+					}
+                    else
+                    {
+						GameScript.Get().SelectPartToMount(newInventoryItem.ID, newInventoryItem.Condition, newInventoryItem.GetItemColor(), newInventoryItem.IsExamined, newInventoryItem.GetItemQuality());
+
+					}
 
 					Inventory.Get().Delete(newInventoryItem);
 
