@@ -32,15 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony12">
+      <HintPath>libs\0Harmony12.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="mscorlib">
-      <HintPath>libs\mscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="0Harmony12">
-      <HintPath>libs\0Harmony12.dll</HintPath>
     </Reference>
     <Reference Include="dnlib">
       <HintPath>libs\dnlib.dll</HintPath>
@@ -57,7 +54,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -71,6 +69,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChecklistWindowMenuItem.cs" />
+    <Compile Include="CarPaintLogic_Patcher.cs" />
+    <Compile Include="GameManager_Patcher.cs" />
+    <Compile Include="CarHelper.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="UIManager_Patcher.cs" />
     <Compile Include="PauseQuitMenu_Patcher.cs" />
     <Compile Include="ModHelper.cs" />
     <Compile Include="SettingsHelper.cs" />

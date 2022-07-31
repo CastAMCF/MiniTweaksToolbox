@@ -48,12 +48,13 @@ namespace MiniTweaksToolbox
 		{
 			GameObject prefab = Resources.Load<GameObject>("UI/ButtonsWindowButton");
 			GameObject prefab2 = Resources.Load<GameObject>("UI/CheckListItem");
-			SettingsHelper.CreateSetting(__instance, group, prefab2, "Tunned Parts", new Func<bool>(Main.ToggleTunnedPartsSetting), Main.tunnedParts);
-			SettingsHelper.CreateSetting(__instance, group, prefab2, "Group Parts", new Func<bool>(Main.ToggleGroupPartsSetting), Main.groupParts);
-			SettingsHelper.CreateSetting(__instance, group, prefab2, "Custom License Plates", new Func<bool>(Main.ToggleCustomLicensePlatesSetting), Main.customLPN);
-			SettingsHelper.CreateSetting(__instance, group, prefab2, "Undiscovered Parts", new Func<bool>(Main.ToggleUncheckedPartsSetting), Main.uncheckedParts);
-			SettingsHelper.CreateSetting(__instance, group, prefab2, "Inventory Check", new Func<bool>(Main.ToggleInvCheckSetting), Main.invCheck);
-			SettingsHelper.CreateSetting(__instance, group, prefab2, "Painted Parts", new Func<bool>(Main.TogglePaintPartsSetting), Main.paintParts);
+			SettingsHelper.CreateSetting(__instance, group, prefab2, "Tunned Parts", new Func<bool>(Settings.ToggleTunnedPartsSetting), Settings.tunnedParts);
+			SettingsHelper.CreateSetting(__instance, group, prefab2, "Group Parts", new Func<bool>(Settings.ToggleGroupPartsSetting), Settings.groupParts);
+			SettingsHelper.CreateSetting(__instance, group, prefab2, "Custom License Plates", new Func<bool>(Settings.ToggleCustomLicensePlatesSetting), Settings.customLPN);
+			SettingsHelper.CreateSetting(__instance, group, prefab2, "Undiscovered Parts", new Func<bool>(Settings.ToggleUncheckedPartsSetting), Settings.uncheckedParts);
+			SettingsHelper.CreateSetting(__instance, group, prefab2, "Inventory Check", new Func<bool>(Settings.ToggleInvCheckSetting), Settings.invCheck);
+			SettingsHelper.CreateSetting(__instance, group, prefab2, "Painted Parts", new Func<bool>(Settings.TogglePaintPartsSetting), Settings.paintParts);
+			SettingsHelper.CreateSetting(__instance, group, prefab2, "Auto Select", new Func<bool>(Settings.ToggleAutoSelectSetting), Settings.autoSelect);
 			SettingsHelper.CreateBackButton(__instance, group, prefab, backToMenu);
 			SettingsHelper.AddAll(group, ___items);
 		}

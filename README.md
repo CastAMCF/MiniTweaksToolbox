@@ -2,8 +2,17 @@
 ## Overview
 CMS2018 Mod
 
-The code is a mess :(
+The code isn't that messier :)
+## Features
+Features in this section are always enable, if you don't want or don't like any feature in this section you have to change the code :| (if some people complain about a feature that shouldn't be always enable, that feature can be migrated to the **Menu** section)
+
+***<details><summary>Sell Groups Parts Per Conditon</summary>***
+  
+  When you sell parts that are below or equal to condition its gonna sell groups that are inside that range
+</details>
+
 ## Menu
+Features in this section can be turn on/off (if some people complain about a feature that should be always enable, that feature can be migrated to the **Features** section)
 
 ***<details><summary>Tunned Parts</summary>***
   
@@ -35,7 +44,13 @@ The code is a mess :(
   With painted parts enable when you buy any body part it will be already painted with the current color and livery, it will be 100$ more pricy though
 </details>
 
+***<details><summary>Auto Select</summary>***
+  
+  With auto select enable when you select a part to mount its gonna choose the best one in the inventory
+</details>
+
 ## Keybinds
+Features in this section are only executed when the correct keybind are pressed
 
 ***<details><summary>Shopping</summary>***
   
