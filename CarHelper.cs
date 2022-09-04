@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -162,8 +163,13 @@ namespace MiniTweaksToolbox
 						newInventoryItem2.extraParameters.Add("NormalID", partID);
 					}
 
+					if (Settings.itemQuality)
+					{
+						newInventoryItem2.extraParameters.Add("Quality", Settings.quality);
+					}
+
 					items.Add(newInventoryItem2);
-					total += (int)Mathf.Floor(Singleton<GameInventory>.Instance.GetItemProperty(partID).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+					total += (int)Mathf.Floor(Helper.GetPrice(newInventoryItem2) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
 				}
 
 			}
@@ -173,18 +179,40 @@ namespace MiniTweaksToolbox
 			return new { newGroupItem = newGroupItem, total = total, items = items };
 		}
 
-		public static object AmortyzatorGroup(string amortyzator)
+		public static object AmortyzatorGroup(string amortyzator, string sprezy, string czapka)
 		{
 			List<NewInventoryItem> items = new List<NewInventoryItem>();
+			int total = 0;
 
 			NewInventoryItem newInventoryItem2 = new NewInventoryItem(amortyzator, 1f, Inventory.SetColor(Color.white), true);
 			newInventoryItem2.extraParameters.Add("PaintType", PaintType.Unpainted);
+			if (Settings.itemQuality)
+			{
+				newInventoryItem2.extraParameters.Add("Quality", Settings.quality);
+			}
 
-			NewInventoryItem newInventoryItem3 = new NewInventoryItem("sprezynnaPrzod_1", 1f, Inventory.SetColor(Color.white), true);
+			total += (int)Mathf.Floor(Helper.GetPrice(newInventoryItem2) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+
+
+			NewInventoryItem newInventoryItem3 = new NewInventoryItem(sprezy, 1f, Inventory.SetColor(Color.white), true);
 			newInventoryItem3.extraParameters.Add("PaintType", PaintType.Unpainted);
+			if (Settings.itemQuality)
+			{
+				newInventoryItem3.extraParameters.Add("Quality", Settings.quality);
+			}
 
-			NewInventoryItem newInventoryItem4 = new NewInventoryItem("czapkaAmorPrzod_1", 1f, Inventory.SetColor(Color.white), true);
+			total += (int)Mathf.Floor(Helper.GetPrice(newInventoryItem3) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+
+
+			NewInventoryItem newInventoryItem4 = new NewInventoryItem(czapka, 1f, Inventory.SetColor(Color.white), true);
 			newInventoryItem4.extraParameters.Add("PaintType", PaintType.Unpainted);
+			if (Settings.itemQuality)
+			{
+				newInventoryItem4.extraParameters.Add("Quality", Settings.quality);
+			}
+
+			total += (int)Mathf.Floor(Helper.GetPrice(newInventoryItem4) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+
 
 			items.Add(newInventoryItem2);
 			items.Add(newInventoryItem3);
@@ -196,8 +224,6 @@ namespace MiniTweaksToolbox
 			newGroupItem.IsNormalGroup = false;
 
 			newGroupItem.ItemList.AddRange(items);
-
-			int total = (int)Mathf.Floor((Singleton<GameInventory>.Instance.GetItemProperty(amortyzator).Price + Singleton<GameInventory>.Instance.GetItemProperty("sprezynnaPrzod_1").Price + Singleton<GameInventory>.Instance.GetItemProperty("czapkaAmorPrzod_1").Price) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
 
 			return new { newGroupItem = newGroupItem, total = total };
 		}
@@ -219,19 +245,24 @@ namespace MiniTweaksToolbox
 			NewInventoryItem newInventoryItem;
 
 			if (type.Equals("rim"))
-            {
+			{
 				newInventoryItem = new NewInventoryItem(tire.w_rim, 1f, true);
 				newInventoryItem.extraParameters.Add("ET", tire.w_et);
-            }
-            else
-            {
+			}
+			else
+			{
 				newInventoryItem = new NewInventoryItem(tire.w_tire, 1f, true);
 			}
-			
+
 			newInventoryItem.extraParameters.Add("Width", tire.w_wheelWidth);
 			newInventoryItem.extraParameters.Add("Profile", tire.w_tireSize);
 			newInventoryItem.extraParameters.Add("Size", tire.w_rimSize);
 			newInventoryItem.extraParameters.Add("PaintType", PaintType.Unpainted);
+
+			if (Settings.itemQuality)
+			{
+				newInventoryItem.extraParameters.Add("Quality", Settings.quality);
+			}
 
 			return new { rimName = tire.w_rim, tireName = tire.w_tire, newInventoryItem = newInventoryItem, tire = tire };
 		}
@@ -243,9 +274,17 @@ namespace MiniTweaksToolbox
 			object rimItem = CreateWheel("rim", carLoader, instance);
 			NewInventoryItem newInventoryItem2 = (NewInventoryItem)rimItem.GetType().GetProperty("newInventoryItem").GetValue(rimItem, null);
 			newInventoryItem2.extraParameters.Add("IsBalanced", true);
+			if (Settings.itemQuality)
+			{
+				newInventoryItem2.extraParameters.Add("Quality", Settings.quality);
+			}
 
 			object tireItem = CreateWheel("tire", carLoader, instance);
 			NewInventoryItem newInventoryItem3 = (NewInventoryItem)tireItem.GetType().GetProperty("newInventoryItem").GetValue(tireItem, null);
+			if (Settings.itemQuality)
+			{
+				newInventoryItem3.extraParameters.Add("Quality", Settings.quality);
+			}
 
 			items.Add(newInventoryItem2);
 			items.Add(newInventoryItem3);
@@ -261,10 +300,10 @@ namespace MiniTweaksToolbox
 			string tireName = (string)tireItem.GetType().GetProperty("tireName").GetValue(tireItem, null);
 			Tire tire = (Tire)rimItem.GetType().GetProperty("tire").GetValue(rimItem, null);
 
-			return new { rimName = rimName, tireName = tireName, newGroupItem = newGroupItem, tire = tire };
+			return new { rimName = rimName, tireName = tireName, rimItem = newInventoryItem2, tireItem = newInventoryItem3, newGroupItem = newGroupItem, tire = tire };
 		}
 
-		
+
 		public static IEnumerator AddManyParts(CarLoader carLoader, List<string> partsListSorted)
 		{
 			int count = 0;
@@ -280,27 +319,7 @@ namespace MiniTweaksToolbox
 
 				NewInventoryItem newInventoryItem;
 
-				if (partID.StartsWith("car_"))
-				{
-					parT = carLoader.GetCarParts().FirstOrDefault(x => x.name.Equals("body"));
-
-					if (Settings.paintParts)
-					{
-						newInventoryItem = new NewInventoryItem(partID, 1f, Inventory.SetColor(parT.color), true);
-						newInventoryItem.extraParameters.Add("PaintType", parT.paintType);
-						newInventoryItem.extraParameters.Add("Livery", parT.livery);
-						newInventoryItem.extraParameters.Add("LiveryStrength", parT.liveryStrength);
-						partPice += 100;
-					}
-					else
-					{
-						newInventoryItem = new NewInventoryItem(partID, 1f, Inventory.SetColor(GlobalData.DEFAULT_ITEM_COLOR), true);
-						newInventoryItem.extraParameters.Add("PaintType", PaintType.Unpainted);
-					}
-
-					partPice += (int)Mathf.Floor(Singleton<GameInventory>.Instance.GetItemProperty(partID).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
-				}
-				else if (partID.Equals("license_plate_front") || partID.Equals("license_plate_rear"))
+				if (partID.Equals("license_plate_front") || partID.Equals("license_plate_rear"))
 				{
 					newInventoryItem = new NewInventoryItem("LicensePlate", 1f, Inventory.SetColor(Color.white), true);
 					newInventoryItem.extraParameters.Add("LPName", carLoader.GetLicencePlateTextureName(partID));
@@ -313,38 +332,60 @@ namespace MiniTweaksToolbox
 						partPice = (int)Mathf.Floor(1000f * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
 					}
 				}
-				else if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 6)
-				{
-					object tireItem = CreateWheel("tire", carLoader, tiresInstance.First());
-					newInventoryItem = (NewInventoryItem)tireItem.GetType().GetProperty("newInventoryItem").GetValue(tireItem, null);
-
-					tire = (Tire)tireItem.GetType().GetProperty("tire").GetValue(tireItem, null);
-
-					tiresInstance.RemoveAt(0);
-
-					partPice = (int)Mathf.Floor(Helper.GetTirePrice(partID, (int)tire.w_wheelWidth, (int)tire.w_tireSize, (int)tire.w_rimSize) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
-				}
-				else if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 7)
-				{
-					object rimItem = CreateWheel("rim", carLoader, rimsInstance.First());
-					newInventoryItem = (NewInventoryItem)rimItem.GetType().GetProperty("newInventoryItem").GetValue(rimItem, null);
-
-					tire = (Tire)rimItem.GetType().GetProperty("tire").GetValue(rimItem, null);
-
-					rimsInstance.RemoveAt(0);
-
-					partPice = (int)Mathf.Floor(Helper.GetRimPrice(partID, (int)tire.w_rimSize, tire.w_et) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
-				}
 				else
 				{
-					if (Singleton<GameInventory>.Instance.GetItemProperty("t_" + partID).Price != 0 && GlobalData.GetPlayerMoney() >= ((Singleton<GameInventory>.Instance.GetItemProperty("t_" + partID).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount")) + total) && Settings.tunnedParts)
+					if (partID.StartsWith("car_"))
 					{
-						partID = "t_" + partID;
+						parT = carLoader.GetCarParts().FirstOrDefault(x => x.name.Equals("body"));
+
+						if (Settings.paintParts)
+						{
+							newInventoryItem = new NewInventoryItem(partID, 1f, Inventory.SetColor(parT.color), true);
+							newInventoryItem.extraParameters.Add("PaintType", parT.paintType);
+							newInventoryItem.extraParameters.Add("Livery", parT.livery);
+							newInventoryItem.extraParameters.Add("LiveryStrength", parT.liveryStrength);
+							partPice += 100;
+						}
+						else
+						{
+							newInventoryItem = new NewInventoryItem(partID, 1f, Inventory.SetColor(GlobalData.DEFAULT_ITEM_COLOR), true);
+							newInventoryItem.extraParameters.Add("PaintType", PaintType.Unpainted);
+						}
+					}
+					else if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 6)
+					{
+						object tireItem = CreateWheel("tire", carLoader, tiresInstance.First());
+						newInventoryItem = (NewInventoryItem)tireItem.GetType().GetProperty("newInventoryItem").GetValue(tireItem, null);
+
+						tire = (Tire)tireItem.GetType().GetProperty("tire").GetValue(tireItem, null);
+
+						tiresInstance.RemoveAt(0);
+					}
+					else if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 7)
+					{
+						object rimItem = CreateWheel("rim", carLoader, rimsInstance.First());
+						newInventoryItem = (NewInventoryItem)rimItem.GetType().GetProperty("newInventoryItem").GetValue(rimItem, null);
+
+						tire = (Tire)rimItem.GetType().GetProperty("tire").GetValue(rimItem, null);
+
+						rimsInstance.RemoveAt(0);
+					}
+					else
+					{
+						if (Singleton<GameInventory>.Instance.GetItemProperty("t_" + partID).Price != 0 && GlobalData.GetPlayerMoney() >= ((Singleton<GameInventory>.Instance.GetItemProperty("t_" + partID).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount")) + total) && Settings.tunnedParts)
+						{
+							partID = "t_" + partID;
+						}
+
+						newInventoryItem = new NewInventoryItem(partID, 1f, Inventory.SetColor(Color.white), true);
 					}
 
-					newInventoryItem = new NewInventoryItem(partID, 1f, Inventory.SetColor(Color.white), true);
+					if (Settings.itemQuality)
+					{
+						newInventoryItem.extraParameters.Add("Quality", Settings.quality);
+					}
 
-					partPice = (int)Mathf.Floor(Singleton<GameInventory>.Instance.GetItemProperty(partID).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+					partPice += (int)Mathf.Floor(Helper.GetPrice(newInventoryItem) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
 				}
 
 				if (!partID.StartsWith("car_"))
@@ -417,10 +458,7 @@ namespace MiniTweaksToolbox
 
 				}
 
-				if (i % 10 == 0)
-				{
-					yield return new WaitForEndOfFrame();
-				}
+				yield return new WaitForEndOfFrame();
 			}
 
 			if (dupeCount != 0 && dupeCount == partsListSorted.Count() && Settings.invCheck)
@@ -454,58 +492,15 @@ namespace MiniTweaksToolbox
 		}
 
 
-		public static void PaintCar(string type, CarLoader carLoader, Color color, int paintType, string livery = "", float liveryStrength = 0f)
+		public static void Paint(CarLoader carLoader)
 		{
-			if (paintType == 1)
-				paintType = 0;
-
-			Action action = delegate ()
-			{
-				carLoader.SetCarColor(null, color);
-				carLoader.SetCarPaintType(null, (PaintType)paintType);
-				carLoader.SetCarLivery(null, livery, liveryStrength);
-
-				Main.carColor = color;
-				Main.carColorCheck = "color";
-
-				GameScript.Get().GetCarPaintLogic().SetCarLoader(carLoader);
-				GameScript.Get().GetCarPaintLogic().RunFX();
-
-				GlobalData.AddPlayerMoney(-1000);
-				UIManager.Get().ShowPopup("MiniTweaksToolbox Mod:", $"The car was painted with the {type} color", PopupType.Normal);
-				GameMode.Get().SetCurrentMode(GameMode.Get().GetPreviousMode());
-
-				Main.carColorCheck = "";
-			};
-			NewHash hash = new NewHash(new object[]
-			{
-						"WindowType",
-						"PaintCar",
-						"Type",
-						"RunAction",
-						"CarName",
-						carLoader.GetName(),
-						"Action",
-						action,
-						"Price",
-						1000
-			});
-
-			GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("UI/NewAskWindow", typeof(GameObject)), GameObject.Find("Ask").gameObject.transform, false) as GameObject;
-			UIManager.Get().SetBlocker(gameObject.transform.parent);
-
-			string[] guiFullTxt = Localization.Instance.Get("GUI_PotwierdzenieNaprawy").Split('\n');
-			string[] guiFrLiTxt = guiFullTxt[0].Trim().Split(' ');
-
-			guiFrLiTxt[guiFrLiTxt.Length - 1] = Localization.Instance.Get("GUI_Paint_PaintPart").Split(' ')[0].ToLower();
-			guiFullTxt[0] = string.Join(" ", guiFrLiTxt);
-
-			gameObject.transform.Find("Text").gameObject.GetComponent<Text>().text = string.Format(string.Join("\n", guiFullTxt), (hash.GetFromKey("CarName") as string).ToUpper(), Helper.MoneyToString(Convert.ToSingle(hash.GetFromKey("Price"))));
-			gameObject.GetComponent<AskWindowBehaviour>().hashtable = hash;
-
-			SoundManager.Get().PlaySFX("AskWindow");
+			carColorCheck = "color";
+			GameScript.Get().GetCarPaintLogic().SetCarLoader(carLoader);
+			GameScript.Get().GetCarPaintLogic().PrepareCarPaint();
 
 			GameMode.Get().SetCurrentMode(gameMode.UI);
+			UIManager.Get().Show("CarPaintMenu");
+			Cursor3D.Get().SetCursorIsEnable(true);
 		}
 
 
@@ -574,5 +569,7 @@ namespace MiniTweaksToolbox
 		public static List<int> tiresInstance;
 		public static int dupeCount;
 		public static int total;
-	}
+        public static string carColorCheck = "";
+		public static NewInventoryItem selectedItemToMount;
+    }
 }

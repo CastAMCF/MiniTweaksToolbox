@@ -13,36 +13,39 @@ namespace MiniTweaksToolbox
 		{
 			if (carLoader != null)
 			{
-				if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 6
+				if (tire != null)
+				{
+					if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 6
 					&& Inventory.Get().GetItems("All").Any(x => partID.Equals(x.ID) && x.Condition == 1f && Convert.ToInt32(x.extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize)
-					&& (!Main.dupeBool || !partID.Equals(Main.dupeText)))
+					&& (!dupeBool || !partID.Equals(dupeText)))
+					{
+						return true;
+					}
+					else if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 7
+						&& Inventory.Get().GetItems("All").Any(x => partID.Equals(x.ID) && x.Condition == 1f && Convert.ToInt32(x.extraParameters.GetHashTable()["ET"]) == tire.w_et && Convert.ToInt32(x.extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize)
+						&& (!dupeBool || !partID.Equals(dupeText)))
+					{
+						return true;
+					}
+				}
+				else if (GroupInventory.Get().GetGroupInventory().Any(x => x.ItemList[0].ID.Equals(partID) && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynnaPrzod_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaAmorPrzod_1") && x.ItemList[2].Condition == 1f) && (!dupeBool || !partID.Equals(dupeText)))
 				{
 					return true;
 				}
-				else if (Singleton<GameInventory>.Instance.GetItemProperty(partID).SpecialGroup == 7
-					&& Inventory.Get().GetItems("All").Any(x => partID.Equals(x.ID) && x.Condition == 1f && Convert.ToInt32(x.extraParameters.GetHashTable()["ET"]) == tire.w_et && Convert.ToInt32(x.extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize)
-					&& (!Main.dupeBool || !partID.Equals(Main.dupeText)))
+				else if (GroupInventory.Get().GetGroupInventory().Any(x => x.ItemList.Any(y => partID.Equals(y.GetNormalID()) && y.Condition == 1f)) && (!dupeBool || !partID.Equals(dupeText)))
 				{
 					return true;
 				}
-				else if (GroupInventory.Get().GetGroupInventory().Any(x => x.ItemList[0].ID.Equals(partID) && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynnaPrzod_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaAmorPrzod_1") && x.ItemList[2].Condition == 1f) && (!Main.dupeBool || !partID.Equals(Main.dupeText)))
-				{
-					return true;
-				}
-				else if (GroupInventory.Get().GetGroupInventory().Any(x => x.ItemList.Any(y => partID.Equals(y.GetNormalID()) && y.Condition == 1f)) && (!Main.dupeBool || !partID.Equals(Main.dupeText)))
-				{
-					return true;
-				}
-				else if (Inventory.Get().GetItems("All").Any(x => partID.Equals(x.ID) && x.Condition == 1f) && (!Main.dupeBool || !partID.Equals(Main.dupeText)))
+				else if (Inventory.Get().GetItems("All").Any(x => partID.Equals(x.ID) && x.Condition == 1f) && (!dupeBool || !partID.Equals(dupeText)))
 				{
 					return true;
 				}
 			}
-			else if (GroupInventory.Get().GetGroupInventory().Any(x => x.ItemList.Any(y => partID.Equals(y.GetNormalID()) && y.Condition == 1f)) && (!Main.dupeBool || !partID.Equals(Main.dupeText)))
+			else if (GroupInventory.Get().GetGroupInventory().Any(x => x.ItemList.Any(y => partID.Equals(y.GetNormalID()) && y.Condition == 1f)) && (!dupeBool || !partID.Equals(dupeText)))
 			{
 				return true;
 			}
-			else if (Inventory.Get().GetItems("All").Any(x => partID.Equals(x.ID) && x.Condition == 1f) && (!Main.dupeBool || !partID.Equals(Main.dupeText)))
+			else if (Inventory.Get().GetItems("All").Any(x => partID.Equals(x.ID) && x.Condition == 1f) && (!dupeBool || !partID.Equals(dupeText)))
 			{
 				return true;
             }
@@ -51,7 +54,17 @@ namespace MiniTweaksToolbox
 		}
 
 
-		public static void UseTool(IOSpecialType tool, CarLoader carLoader)
+        public static List<NewGroupItem> GetRimsWithSizeGreaterOrEqualThanAndLessThan(float minRimSize, float maxSize)
+        {
+            List<NewGroupItem> list = new List<NewGroupItem>();
+            return (from groupItem in GroupInventory.Get().GetGroupInventory()
+                    where groupItem.GroupName.Contains("rim") && groupItem.ItemList != null && groupItem.ItemList.Count > 1 && (bool)groupItem.ItemList[0].extraParameters.GetFromKey("IsBalanced")
+                    && (float)groupItem.ItemList[0].extraParameters.GetFromKey("Size") >= minRimSize && (float)groupItem.ItemList[0].extraParameters.GetFromKey("Size") <= maxSize
+                    select groupItem).ToList<NewGroupItem>();
+        }
+
+
+        public static void UseTool(IOSpecialType tool, CarLoader carLoader)
 		{
 			Action action;
 			int price;
@@ -148,6 +161,10 @@ namespace MiniTweaksToolbox
 			GlobalData.AddPlayerMoney(price);
 		}
 
-
-	}
+        public static bool dupeBool;
+        public static string dupeText;
+        public static string playerState = "walk";
+        public static bool jump = false;
+        public static Vector3 playerPosition;
+    }
 }

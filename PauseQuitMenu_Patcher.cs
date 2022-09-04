@@ -13,7 +13,7 @@ namespace MiniTweaksToolbox
 		{
 			if (GameScript.Get().CurrentSceneType == SceneType.Garage)
 			{
-				SettingsHelper.CreateQSESettingsButton(__instance, ___items);
+				SettingsHelper.CreateMTTSettingsButton(__instance, ___items);
 			}
 		}
 	}

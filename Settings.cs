@@ -1,4 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using UnityEngine;
+using static HBAO_Core;
 
 namespace MiniTweaksToolbox
 {
@@ -22,7 +27,12 @@ namespace MiniTweaksToolbox
 
 		public static bool autoSelect;
 
-		internal static bool ToggleTunnedPartsSetting()
+        public static bool noOilDrain;
+
+        public static bool itemQuality;
+        public static int quality = 0;
+
+        internal static bool ToggleTunnedPartsSetting()
 		{
 			tunnedParts = !tunnedParts;
 			Save();
@@ -71,7 +81,31 @@ namespace MiniTweaksToolbox
 			return autoSelect;
 		}
 
-		internal static void Load()
+        internal static bool ToggleNoOilDrainSetting()
+        {
+            noOilDrain = !noOilDrain;
+            Save();
+            return noOilDrain;
+        }
+
+        internal static object ToggleItemQualitySetting()
+        {
+			if (itemQuality && quality == 5)
+			{
+				quality = 0;
+                itemQuality = false;
+            }
+            else
+            {
+                quality++;
+				itemQuality = true;
+			}
+
+			Save();
+			return new { flag = itemQuality, changer = quality.ToString() };
+		}
+
+        internal static void Load()
 		{
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);
@@ -87,10 +121,14 @@ namespace MiniTweaksToolbox
 				invCheck = text.Split(',')[4].Split(':')[1].Equals("True");
 				paintParts = text.Split(',')[5].Split(':')[1].Equals("True");
 				autoSelect = text.Split(',')[6].Split(':')[1].Equals("True");
-			}
+                noOilDrain = text.Split(',')[7].Split(':')[1].Equals("True");
+                itemQuality = text.Split(',')[8].Split(':')[1].Equals("True");
+                quality = int.Parse(text.Split(',')[8].Split(':')[2]);
+
+            }
 			else
 			{
-				File.WriteAllText(filePath, "tunnedParts:False,groupParts:False,customLPN:False,uncheckedParts:False,invCheck:False,paintParts:False,autoSelect:False,");
+				File.WriteAllText(filePath, "tunnedParts:False,groupParts:False,customLPN:False,uncheckedParts:False,invCheck:False,paintParts:False,autoSelect:False,noOilDrain:False,itemQuality:False:0,");
 
 				tunnedParts = false;
 				groupParts = false;
@@ -99,12 +137,16 @@ namespace MiniTweaksToolbox
 				invCheck = false;
 				paintParts = false;
 				autoSelect = false;
-			}
+                noOilDrain = false;
+                itemQuality = false;
+                quality = 0;
+
+            }
 		}
 
 		internal static void Save()
 		{
-			File.WriteAllText(filePath, $"tunnedParts:{tunnedParts},groupParts:{groupParts},customLPN:{customLPN},uncheckedParts:{uncheckedParts},invCheck:{invCheck},paintParts:{paintParts},autoSelect:{autoSelect},");
+			File.WriteAllText(filePath, $"tunnedParts:{tunnedParts},groupParts:{groupParts},customLPN:{customLPN},uncheckedParts:{uncheckedParts},invCheck:{invCheck},paintParts:{paintParts},autoSelect:{autoSelect},noOilDrain:{noOilDrain},itemQuality:{itemQuality}:{quality},");
 		}
 	}
 }

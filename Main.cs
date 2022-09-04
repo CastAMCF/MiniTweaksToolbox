@@ -30,14 +30,6 @@ namespace MiniTweaksToolbox
 			return value;
 		}
 
-		public static bool dupeBool;
-
-		public static string dupeText;
-
-		public static Color carColor;
-
-		public static string carColorCheck = "";
-
 		public static bool enabled;
 
 		public static UnityModManager.ModEntry mod;

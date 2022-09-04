@@ -9,7 +9,7 @@ namespace MiniTweaksToolbox
 {
 	internal static class SettingsHelper
 	{
-		public static void CreateQSESettingsButton(PauseQuitMenu __instance, List<GameObject> ___items)
+		public static void CreateMTTSettingsButton(PauseQuitMenu __instance, List<GameObject> ___items)
 		{
 			Transform group = __instance.transform.Find("Content/Buttons");
 			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(Resources.Load<GameObject>("UI/ButtonsWindowButton"), group);
@@ -17,7 +17,7 @@ namespace MiniTweaksToolbox
 			{
 				SettingsHelper.___isEnabled = false;
 				SettingsHelper.ClearMenu(__instance, ___items);
-				SettingsHelper.CreateQSESettingsButton(__instance, ___items);
+				SettingsHelper.CreateMTTSettingsButton(__instance, ___items);
 				SettingsHelper.ShowOriginalMenu(__instance, ___items, group);
 				SettingsHelper.AddAll(group, ___items);
 				SettingsHelper.___isEnabled = true;
@@ -55,7 +55,9 @@ namespace MiniTweaksToolbox
 			SettingsHelper.CreateSetting(__instance, group, prefab2, "Inventory Check", new Func<bool>(Settings.ToggleInvCheckSetting), Settings.invCheck);
 			SettingsHelper.CreateSetting(__instance, group, prefab2, "Painted Parts", new Func<bool>(Settings.TogglePaintPartsSetting), Settings.paintParts);
 			SettingsHelper.CreateSetting(__instance, group, prefab2, "Auto Select", new Func<bool>(Settings.ToggleAutoSelectSetting), Settings.autoSelect);
-			SettingsHelper.CreateBackButton(__instance, group, prefab, backToMenu);
+            SettingsHelper.CreateSetting(__instance, group, prefab2, "No Oil Drain", new Func<bool>(Settings.ToggleNoOilDrainSetting), Settings.noOilDrain);
+            SettingsHelper.CreateUpdatingSetting(__instance, group, prefab2, "Quality: ", Settings.quality.ToString(), new Func<object>(Settings.ToggleItemQualitySetting), Settings.itemQuality);
+            SettingsHelper.CreateBackButton(__instance, group, prefab, backToMenu);
 			SettingsHelper.AddAll(group, ___items);
 		}
 
@@ -68,7 +70,7 @@ namespace MiniTweaksToolbox
 			Action action = delegate ()
 			{
 				bool flag = func();
-				gameObject.transform.Find("ImgON").gameObject.SetActive(flag);
+                gameObject.transform.Find("ImgON").gameObject.SetActive(flag);
 				gameObject.transform.Find("ImgOFF").gameObject.SetActive(!flag);
 			};
 			NewHash hash = new NewHash(new object[]
@@ -89,7 +91,41 @@ namespace MiniTweaksToolbox
 			LayoutRebuilder.ForceRebuildLayoutImmediate(group as RectTransform);
 		}
 
-		private static void CreateBackButton(PauseQuitMenu __instance, Transform group, GameObject prefab, Action action)
+        private static void CreateUpdatingSetting(PauseQuitMenu __instance, Transform group, GameObject prefab, string text, string changer, Func<object> func, bool setting)
+        {
+            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, group);
+            gameObject.transform.Find("Text").GetComponent<Text>().text = text + changer;
+            gameObject.transform.Find("ImgON").gameObject.SetActive(setting);
+            gameObject.transform.Find("ImgOFF").gameObject.SetActive(!setting);
+            Action action = delegate ()
+            {
+                object Func = func();
+				bool flag = (bool)Func.GetType().GetProperty("flag").GetValue(Func, null);
+                string Changer = (string)Func.GetType().GetProperty("changer").GetValue(Func, null);
+
+                gameObject.transform.Find("Text").GetComponent<Text>().text = text + Changer;
+                gameObject.transform.Find("ImgON").gameObject.SetActive(flag);
+                gameObject.transform.Find("ImgOFF").gameObject.SetActive(!flag);
+            };
+            NewHash hash = new NewHash(new object[]
+            {
+                "WindowType",
+                "QuitPauseMenu",
+                "Type",
+                "RunAction",
+                "Action",
+                action
+            });
+            gameObject.AddComponent<ButtonSound>();
+            ButtonAction buttonAction = gameObject.AddComponent<ButtonAction>();
+            buttonAction.interactable = true;
+            gameObject.AddComponent<EventTrigger>();
+            gameObject.AddComponent<ChecklistWindowMenuItem>().SetParent(__instance);
+            buttonAction.Set(hash);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(group as RectTransform);
+        }
+
+        private static void CreateBackButton(PauseQuitMenu __instance, Transform group, GameObject prefab, Action action)
 		{
 			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, group);
 			NewHash hash = new NewHash(new object[]

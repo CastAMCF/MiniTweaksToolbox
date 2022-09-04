@@ -30,7 +30,8 @@ namespace MiniTweaksToolbox
 					else if (Settings.autoSelect)
 					{
 						NewInventoryItem newInventoryItem = (from i in Inventory.Get().GetItems(ID[0])
-															 orderby i.Condition descending
+                                                             orderby Singleton<GameInventory>.Instance.GetItemProperty(i.ID).Price descending
+                                                             orderby i.Condition descending
 															 select i).ToList()[0];
 
 						__instance.ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newInventoryItem.ID) + " (" + Helper.ConditionToString(newInventoryItem.Condition) + ")", PopupType.Normal);
@@ -50,23 +51,36 @@ namespace MiniTweaksToolbox
 
 						}
 
-						Inventory.Get().Delete(newInventoryItem);
+						CarHelper.selectedItemToMount = newInventoryItem;
+                        Inventory.Get().Delete(newInventoryItem);
 
-						type = "none";
+                        type = "none";
 					}
 
 				}
 
-				if (type.Equals("group") && windowName.Equals("NewChooseItemsMenu") && Settings.autoSelect)
+				if (type.Equals("group") && windowName.Equals("NewChooseItemsMenu") && GameScript.Get().GetMachineOnMouseOverType() != IOSpecialType.EngineStand && Settings.autoSelect)
 				{
 					List<NewGroupItem> list2 = new List<NewGroupItem>();
 
 					if (ID[0].Contains("rim"))
 					{
-						int minRimSize = GameScript.Get().GetIOMouseOverCarLoader2().GetMinRimSize(true);
-						float rearWheelMaxSize = GameScript.Get().GetIOMouseOverCarLoader2().GetRearWheelMaxSize();
-						list2 = GroupInventory.Get().GetRimsWithSizeGreaterOrEqualThanAndLessThan(minRimSize, rearWheelMaxSize);
-					}
+						/*int minRimSize = GameScript.Get().GetIOMouseOverCarLoader2().GetMinRimSize(true);
+						float rearWheelMaxSize = GameScript.Get().GetIOMouseOverCarLoader2().GetRearWheelMaxSize();*/
+
+                        object rimItem = CarHelper.CreateWheel("rim", GameScript.Get().GetIOMouseOverCarLoader2(), GameScript.Get().GetPartMouseOver().GetInstanceID());
+                        NewInventoryItem newInventoryItem1 = (NewInventoryItem)rimItem.GetType().GetProperty("newInventoryItem").GetValue(rimItem, null);
+
+                        float minRimSize = (float)newInventoryItem1.extraParameters.GetFromKey("Size");
+                        float rearWheelMaxSize = (float)newInventoryItem1.extraParameters.GetFromKey("Size");
+
+                        list2 = ModHelper.GetRimsWithSizeGreaterOrEqualThanAndLessThan(minRimSize, rearWheelMaxSize);
+
+                        if (list2 == null || list2.Count() == 0)
+                        {
+                            list2 = GroupInventory.Get().GetRimsWithSizeGreaterOrEqualThanAndLessThan((int)minRimSize, rearWheelMaxSize);
+                        }
+                    }
 					else if (ID[0].Contains("amortyzator"))
 					{
 						list2 = GroupInventory.Get().GetGroupInventory(ID[0]);
@@ -84,7 +98,7 @@ namespace MiniTweaksToolbox
 
 					if (list2 == null || list2.Count() == 0)
 					{
-						__instance.ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
+                        __instance.ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
 						type = "none";
 					}
 					else
@@ -124,7 +138,8 @@ namespace MiniTweaksToolbox
 				foreach (string item in GameScript.Get().GetGroupOfItems().ToArray())
 				{
 					List<NewInventoryItem> newInventoryItem = (from i in Inventory.Get().GetItems(item)
-															   orderby i.Condition descending
+                                                               orderby Singleton<GameInventory>.Instance.GetItemProperty(i.ID).Price descending
+                                                               orderby i.Condition descending
 															   select i).ToList();
 
 					if (newInventoryItem.Count() > 0)
@@ -143,13 +158,13 @@ namespace MiniTweaksToolbox
 						}
 
 						__instance.ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
-						windowName = "none";
+						windowName = "None";
 
 						break;
 					}
 				}
 
-                if (!windowName.Equals("none"))
+                if (!windowName.Equals("None"))
                 {
 					NewGroupItem newGroupItem = new NewGroupItem();
 					newGroupItem.GroupName = newInventoryItems[0].ID;
@@ -177,11 +192,11 @@ namespace MiniTweaksToolbox
 	public static class UIManager_Patcher_initCreateGroupMenu_Postfix
 	{
 		[HarmonyPostfix]
-		public static void UIManager_initCreateGroupMenu_Postfix(ref string windowName)
+		public static void UIManager_initCreateGroupMenu_Postfix(string windowName)
 		{
 			if (windowName.Equals("none") && Settings.autoSelect)
 			{
-				GameMode.Get().SetCurrentMode(GameMode.Get().GetPreviousMode());
+				GameMode.Get().SetCurrentMode(gameMode.PartMount);
 			}
 		}
 	}
