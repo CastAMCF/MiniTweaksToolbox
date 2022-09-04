@@ -14,28 +14,35 @@ namespace MiniTweaksToolbox
 		[HarmonyPostfix]
 		private static void Postfix()
 		{
-			if (GameMode.Get().GetCurrentMode() != gameMode.UI && GameScript.Get().CurrentSceneType == SceneType.Garage && GameScript.Get().GetIOMouseOverCarLoader2() != null)
+			if (GameMode.Get().GetCurrentMode() != gameMode.UI && GameScript.Get().CurrentSceneType == SceneType.Garage)
 			{
-				if (Input.GetKeyUp(KeyCode.L))
+				if (GameScript.Get().GetIOMouseOverCarLoader2() != null)
 				{
-					if (GlobalData.GetPlayerMoney() < GlobalData.Cost_UseInteriorDetailingToolkit)
-					{
-						UIManager.Get().ShowInfoWindow("GUI_BrakKasy");
-						return;
-					}
+                    if (Input.GetKeyUp(KeyCode.L))
+                    {
+                        if (GlobalData.GetPlayerMoney() < GlobalData.Cost_UseInteriorDetailingToolkit)
+                        {
+                            UIManager.Get().ShowInfoWindow("GUI_BrakKasy");
+                            return;
+                        }
 
-					ModHelper.UseTool(IOSpecialType.InteriorDetailingToolkit, GameScript.Get().GetIOMouseOverCarLoader2());
-				}
-				else if (Input.GetKeyUp(KeyCode.K))
-				{
-					if (GlobalData.GetPlayerMoney() < GlobalData.Cost_UseWelder)
-					{
-						UIManager.Get().ShowInfoWindow("GUI_BrakKasy");
-						return;
-					}
+                        ModHelper.UseTool(IOSpecialType.InteriorDetailingToolkit, GameScript.Get().GetIOMouseOverCarLoader2());
+                    }
+                    else if (Input.GetKeyUp(KeyCode.K))
+                    {
+                        if (GlobalData.GetPlayerMoney() < GlobalData.Cost_UseWelder)
+                        {
+                            UIManager.Get().ShowInfoWindow("GUI_BrakKasy");
+                            return;
+                        }
 
-					ModHelper.UseTool(IOSpecialType.Welder, GameScript.Get().GetIOMouseOverCarLoader2());
-				}
+                        ModHelper.UseTool(IOSpecialType.Welder, GameScript.Get().GetIOMouseOverCarLoader2());
+                    }
+                    else if (Input.GetKeyUp(KeyCode.P))
+                    {
+                        CarHelper.Paint(GameScript.Get().GetIOMouseOverCarLoader2());
+                    }
+                }
 				else if (Singleton<UpgradeSystem>.Instance.GetUpgradeValue("garage_upgrade") >= 2f && Input.GetKeyUp(KeyCode.Y))
 				{
 					GameScript.Get().IncraseEngineStandAngle(-90f);
@@ -43,10 +50,6 @@ namespace MiniTweaksToolbox
 				else if (Singleton<UpgradeSystem>.Instance.GetUpgradeValue("garage_upgrade") >= 2f && Input.GetKeyUp(KeyCode.U))
 				{
 					GameScript.Get().IncraseEngineStandAngle(90f);
-				}
-				else if (Input.GetKeyUp(KeyCode.P))
-				{
-					CarHelper.Paint(GameScript.Get().GetIOMouseOverCarLoader2());
 				}
 
 			}
