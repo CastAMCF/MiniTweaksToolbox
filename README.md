@@ -75,12 +75,9 @@ Features in this section are only executed when the correct keybind are pressed
   | Feature       |               Key               |
   | ------------- |:-------------------------------:|
   | Sprint        |  `Left Shift` or `Right Shift`  |
-  | Jump          |             `Space`             |
   | Reset Postion |               `R`               |
   
-  **Jump**: The jump has no cooldown, you can jump in the air
-  
-  **Reset Postion**: This works where the **Sprint** and **Jump** are applied, except in sheds
+  **Reset Postion**: This works where the **Sprint** is applied, except in sheds
 </details>
 
 ***<details><summary>Shopping</summary>***
