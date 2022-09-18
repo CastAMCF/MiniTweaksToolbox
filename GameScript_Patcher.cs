@@ -276,7 +276,12 @@ namespace MiniTweaksToolbox
 							Tire tire = GameScript.Get().GetIOMouseOverCarLoader2().GetTires()[0];
 							newInventoryItem1 = new NewInventoryItem(text1, 1f, true);
 
-							if (Singleton<GameInventory>.Instance.GetItemProperty(text1).ShopGroup.Equals("Engine") && Settings.groupParts)
+                            if (Settings.itemQuality)
+                            {
+                                newInventoryItem1.extraParameters.Add("Quality", Settings.quality);
+                            }
+
+                            if (Singleton<GameInventory>.Instance.GetItemProperty(text1).ShopGroup.Equals("Engine") && Settings.groupParts)
 							{
 								string engineName = GameScript.Get().GetIOMouseOverCarLoader2().GetEngine().GetComponent<InteractiveObject>().GetID().Split('(')[0];
 								object engineParts = CarHelper.EngineParts(GameScript.Get().GetIOMouseOverCarLoader2());
@@ -414,14 +419,24 @@ namespace MiniTweaksToolbox
 								object tireItem = CarHelper.CreateWheel("tire", GameScript.Get().GetIOMouseOverCarLoader2(), GameScript.Get().GetPartMouseOver().GetInstanceID());
 								newInventoryItem1 = (NewInventoryItem)tireItem.GetType().GetProperty("newInventoryItem").GetValue(tireItem, null);
 
-								tire = (Tire)tireItem.GetType().GetProperty("tire").GetValue(tireItem, null);
+                                if (Settings.itemQuality)
+                                {
+                                    newInventoryItem1.extraParameters.Add("Quality", Settings.quality);
+                                }
+
+                                tire = (Tire)tireItem.GetType().GetProperty("tire").GetValue(tireItem, null);
 							}
 							else if (Singleton<GameInventory>.Instance.GetItemProperty(text1).SpecialGroup == 7)
 							{
 								object rimItem = CarHelper.CreateWheel("rim", GameScript.Get().GetIOMouseOverCarLoader2(), GameScript.Get().GetPartMouseOver().GetInstanceID());
 								newInventoryItem1 = (NewInventoryItem)rimItem.GetType().GetProperty("newInventoryItem").GetValue(rimItem, null);
 
-								tire = (Tire)rimItem.GetType().GetProperty("tire").GetValue(rimItem, null);
+                                if (Settings.itemQuality)
+                                {
+                                    newInventoryItem1.extraParameters.Add("Quality", Settings.quality);
+                                }
+
+                                tire = (Tire)rimItem.GetType().GetProperty("tire").GetValue(rimItem, null);
 							}
 
 							if (ModHelper.IsInInventory(GameScript.Get().GetIOMouseOverCarLoader2(), tire, text1) && Settings.invCheck)

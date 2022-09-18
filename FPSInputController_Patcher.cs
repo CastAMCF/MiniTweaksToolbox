@@ -30,7 +30,7 @@ namespace MiniTweaksToolbox
         [HarmonyPostfix]
         public static void FPSInputController_Update_Postfix(FPSInputController __instance)
         {
-            if (Input.GetKeyDown(KeyCode.R) && (GameScript.Get().CurrentSceneType == SceneType.Parking || GameScript.Get().CurrentSceneType == SceneType.Salon || GameScript.Get().CurrentSceneType == SceneType.Junkyard || GameScript.Get().CurrentSceneType == SceneType.Garage))
+            if (Input.GetKeyDown(KeyCode.R) && GameMode.Get().GetCurrentMode() != gameMode.UI && (GameScript.Get().CurrentSceneType == SceneType.Parking || GameScript.Get().CurrentSceneType == SceneType.Salon || GameScript.Get().CurrentSceneType == SceneType.Junkyard || GameScript.Get().CurrentSceneType == SceneType.Garage))
             {
                 __instance.transform.position = ModHelper.playerPosition;
             }
