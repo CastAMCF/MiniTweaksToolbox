@@ -54,7 +54,8 @@ namespace MiniTweaksToolbox
 			SettingsHelper.CreateSetting(__instance, group, prefab2, "Undiscovered Parts", new Func<bool>(Settings.ToggleUncheckedPartsSetting), Settings.uncheckedParts);
 			SettingsHelper.CreateSetting(__instance, group, prefab2, "Inventory Check", new Func<bool>(Settings.ToggleInvCheckSetting), Settings.invCheck);
 			SettingsHelper.CreateSetting(__instance, group, prefab2, "Painted Parts", new Func<bool>(Settings.TogglePaintPartsSetting), Settings.paintParts);
-			SettingsHelper.CreateSetting(__instance, group, prefab2, "Auto Select", new Func<bool>(Settings.ToggleAutoSelectSetting), Settings.autoSelect);
+            SettingsHelper.CreateSetting(__instance, group, prefab2, "Original Parts", new Func<bool>(Settings.ToggleOriginalPartsSetting), Settings.originalParts);
+            SettingsHelper.CreateSetting(__instance, group, prefab2, "Auto Select", new Func<bool>(Settings.ToggleAutoSelectSetting), Settings.autoSelect);
             SettingsHelper.CreateSetting(__instance, group, prefab2, "No Oil Drain", new Func<bool>(Settings.ToggleNoOilDrainSetting), Settings.noOilDrain);
             SettingsHelper.CreateUpdatingSetting(__instance, group, prefab2, "Quality: ", Settings.quality.ToString(), new Func<object>(Settings.ToggleItemQualitySetting), Settings.itemQuality);
             SettingsHelper.CreateBackButton(__instance, group, prefab, backToMenu);

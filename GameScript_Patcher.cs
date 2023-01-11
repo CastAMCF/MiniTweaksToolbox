@@ -38,6 +38,10 @@ namespace MiniTweaksToolbox
 
                         ModHelper.UseTool(IOSpecialType.Welder, GameScript.Get().GetIOMouseOverCarLoader2());
                     }
+                    else if (Input.GetKeyUp(KeyCode.O))
+                    {
+                        ModHelper.ShowSwapEngines(GameScript.Get().GetIOMouseOverCarLoader2().GetEngineSwapOptions());
+                    }
                     else if (Input.GetKeyUp(KeyCode.P))
                     {
                         CarHelper.Paint(GameScript.Get().GetIOMouseOverCarLoader2());
@@ -64,192 +68,213 @@ namespace MiniTweaksToolbox
 				{
 					Jukebox.Get().NextSong();
 				}
+                else if (Input.GetKeyUp(KeyCode.Keypad0))
+				{
+					
+                }
 
             }
 
-			if (GameMode.Get().GetCurrentMode() != gameMode.UI && GameScript.Get().CurrentSceneType == SceneType.Garage && GameScript.Get().GetIOMouseOverCarLoader2() != null && Input.GetKeyUp(KeyCode.J))
+			if (GameMode.Get().GetCurrentMode() != gameMode.UI && GameScript.Get().CurrentSceneType == SceneType.Garage && Input.GetKeyUp(KeyCode.J))
 			{
-				CarHelper.total = 0;
-				CarLoader carLoader = GameScript.Get().GetIOMouseOverCarLoader2();
-				object allParts = CarHelper.GetAllBuyableParts(carLoader);
-				List<string> parts = (List<string>)allParts.GetType().GetProperty("parts").GetValue(allParts, null);
-				CarHelper.tiresInstance = (List<int>)allParts.GetType().GetProperty("tiresInstance").GetValue(allParts, null);
-				CarHelper.rimsInstance = (List<int>)allParts.GetType().GetProperty("rimsInstance").GetValue(allParts, null);
-				CarHelper.inventory = new List<NewInventoryItem>(Inventory.Get().GetItems("All"));
-				CarHelper.groupInventory = new List<NewGroupItem>(GroupInventory.Get().GetGroupInventory());
-
-				CarHelper.dupeCount = 0;
-
-
-				string engineName = carLoader.GetEngine().GetComponent<InteractiveObject>().GetID().Split('(')[0];
-				object engineParts = CarHelper.EngineParts(carLoader);
-				List<NewInventoryItem> itemsEn = new List<NewInventoryItem>((List<NewInventoryItem>)engineParts.GetType().GetProperty("items").GetValue(engineParts, null));
-
-				if (itemsEn.Except(itemsEn.Where(x => x.GetNormalID().Equals("bagnet_1") || x.GetNormalID().Equals("korekOleju_1") || x.GetNormalID().Equals("korek_spustowy_1"))).All(x => parts.Any(y => x.ID.Split('(')[0].Equals(y))) && Settings.groupParts)
+				if (GameScript.Get().GetMachineOnMouseOverType() == IOSpecialType.EngineStand)
 				{
-					int partEnPice = (int)engineParts.GetType().GetProperty("total").GetValue(engineParts, null);
+                    CarHelper.total = 0;
+                    List<string> parts = CarHelper.GetAllBuyablePartsEngine();
+                    CarHelper.inventory = new List<NewInventoryItem>(Inventory.Get().GetItems("All"));
 
-					if (CarHelper.groupInventory.Any(x => x.GroupName.Equals(engineName) && x.ItemList.All(y => y.Condition == 1f && itemsEn.FirstOrDefault(z => z.GetNormalID().Equals(y.GetNormalID())) != null) && x.ItemList.Count() == itemsEn.Count()) && Settings.invCheck)
-					{
-						CarHelper.dupeCount++;
-						CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.GroupName.Equals(engineName) && x.ItemList.All(y => y.Condition == 1f && itemsEn.FirstOrDefault(z => z.GetNormalID().Equals(y.GetNormalID())) != null) && x.ItemList.Count() == itemsEn.Count()));
-					}
-					else
-					{
-						if (GlobalData.GetPlayerMoney() >= CarHelper.total + partEnPice)
-						{
-							GroupInventory.Get().Add((NewGroupItem)engineParts.GetType().GetProperty("newGroupItem").GetValue(engineParts, null));
+                    CarHelper.dupeCount = 0;
 
-							Main.mod.Logger.Log(engineName);
+                    var partsListSorted = (from part in parts
+                                           orderby Singleton<GameInventory>.Instance.GetItemProperty(part).Price descending
+                                           select part).ToList();
 
-							parts = parts.Where(x => !itemsEn.Select(p => p.ID.Split('(')[0]).Contains(x)).ToList();
-
-							CarHelper.total += partEnPice;
-						}
-					}
-				}
-
-
-				string amortyzator = carLoader.GetRoot().GetComponentsInChildren<PartScript>().ToList().FirstOrDefault(part => Singleton<GameInventory>.Instance.GetItemProperty(part.GetIDWithTuned()).SpecialGroup == 8).GetIDWithTuned();
-
-				if (parts.Any(x => x.Equals(amortyzator) || x.Equals("sprezynnaPrzod_1") || x.Equals("czapkaAmorPrzod_1") || x.Equals("amortyzator_double_rear") || x.Equals("sprezynaTyl_1") || x.Equals("czapkaSprezynyTyl_1")) && Settings.groupParts)
+                    Inventory.Get().StartCoroutine(CarHelper.AddManyPartsEngine(partsListSorted));
+                } 
+				else if (GameScript.Get().GetIOMouseOverCarLoader2() != null)
 				{
-					var amortyzatorsList = parts.Where(x => x.Equals(amortyzator) || x.Equals("sprezynnaPrzod_1") || x.Equals("czapkaAmorPrzod_1") || x.Equals("amortyzator_double_rear") || x.Equals("sprezynaTyl_1") || x.Equals("czapkaSprezynyTyl_1")).ToList();
-					int amortyzatorsListLength = amortyzatorsList.Count();
+					CarHelper.total = 0;
+					CarLoader carLoader = GameScript.Get().GetIOMouseOverCarLoader2();
+					object allParts = CarHelper.GetAllBuyableParts(carLoader);
+					List<string> parts = (List<string>)allParts.GetType().GetProperty("parts").GetValue(allParts, null);
+					CarHelper.tiresInstance = (List<int>)allParts.GetType().GetProperty("tiresInstance").GetValue(allParts, null);
+					CarHelper.rimsInstance = (List<int>)allParts.GetType().GetProperty("rimsInstance").GetValue(allParts, null);
+					CarHelper.inventory = new List<NewInventoryItem>(Inventory.Get().GetItems("All"));
+					CarHelper.groupInventory = new List<NewGroupItem>(GroupInventory.Get().GetGroupInventory());
 
-					for (int i = 0; i < amortyzatorsListLength; i++)
+					CarHelper.dupeCount = 0;
+
+
+					string engineName = carLoader.GetEngine().GetComponent<InteractiveObject>().GetID().Split('(')[0];
+					object engineParts = CarHelper.EngineParts(carLoader);
+					List<NewInventoryItem> itemsEn = new List<NewInventoryItem>((List<NewInventoryItem>)engineParts.GetType().GetProperty("items").GetValue(engineParts, null));
+
+					if (itemsEn.Except(itemsEn.Where(x => x.GetNormalID().Equals("bagnet_1") || x.GetNormalID().Equals("korekOleju_1") || x.GetNormalID().Equals("korek_spustowy_1"))).All(x => parts.Any(y => x.ID.Split('(')[0].Equals(y))) && Settings.groupParts)
 					{
-						if ((amortyzatorsList.Contains(amortyzator) && amortyzatorsList.Contains("sprezynnaPrzod_1") && amortyzatorsList.Contains("czapkaAmorPrzod_1")) || (amortyzatorsList.Contains("amortyzator_double_rear") && amortyzatorsList.Contains("sprezynaTyl_1") && amortyzatorsList.Contains("czapkaSprezynyTyl_1")))
+						int partEnPice = (int)engineParts.GetType().GetProperty("total").GetValue(engineParts, null);
+
+						if (CarHelper.groupInventory.Any(x => x.GroupName.Equals(engineName) && x.ItemList.All(y => y.Condition == 1f && itemsEn.FirstOrDefault(z => z.GetNormalID().Equals(y.GetNormalID())) != null) && x.ItemList.Count() == itemsEn.Count()) && Settings.invCheck)
 						{
-							object amortyzatorGroup = CarHelper.AmortyzatorGroup(amortyzator, "sprezynnaPrzod_1", "czapkaAmorPrzod_1");
-
-							amortyzatorsList.Remove(amortyzator);
-							amortyzatorsList.Remove("sprezynnaPrzod_1");
-							amortyzatorsList.Remove("czapkaAmorPrzod_1");
-
-							if (CarHelper.groupInventory.Any(x => x.ItemList[0].ID.Equals(amortyzator) && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynnaPrzod_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaAmorPrzod_1") && x.ItemList[2].Condition == 1f) && Settings.invCheck)
-							{
-								CarHelper.dupeCount++;
-								CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.ItemList[0].ID.Equals(amortyzator) && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynnaPrzod_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaAmorPrzod_1") && x.ItemList[2].Condition == 1f));
-							}
-							else
-							{
-								int partPice = (int)amortyzatorGroup.GetType().GetProperty("total").GetValue(amortyzatorGroup, null);
-
-								if (GlobalData.GetPlayerMoney() >= CarHelper.total + partPice)
-								{
-									parts.Remove(amortyzator);
-									parts.Remove("sprezynnaPrzod_1");
-									parts.Remove("czapkaAmorPrzod_1");
-
-									GroupInventory.Get().Add((NewGroupItem)amortyzatorGroup.GetType().GetProperty("newGroupItem").GetValue(amortyzatorGroup, null));
-
-									Main.mod.Logger.Log(amortyzator + " + sprezynnaPrzod_1 + czapkaAmorPrzod_1");
-
-									CarHelper.total += partPice;
-								}
-							}
-
-						}
-
-                        if (amortyzatorsList.Contains("amortyzator_double_rear") && amortyzatorsList.Contains("sprezynaTyl_1") && amortyzatorsList.Contains("czapkaSprezynyTyl_1"))
-                        {
-                            object amortyzatorGroup = CarHelper.AmortyzatorGroup("amortyzator_double_rear", "sprezynaTyl_1", "czapkaSprezynyTyl_1");
-
-                            amortyzatorsList.Remove("amortyzator_double_rear");
-                            amortyzatorsList.Remove("sprezynaTyl_1");
-                            amortyzatorsList.Remove("czapkaSprezynyTyl_1");
-
-                            if (CarHelper.groupInventory.Any(x => x.ItemList[0].ID.Equals("amortyzator_double_rear") && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynaTyl_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaSprezynyTyl_1") && x.ItemList[2].Condition == 1f) && Settings.invCheck)
-                            {
-                                CarHelper.dupeCount++;
-                                CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.ItemList[0].ID.Equals("amortyzator_double_rear") && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynaTyl_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaSprezynyTyl_1") && x.ItemList[2].Condition == 1f));
-                            }
-                            else
-                            {
-                                int partPice = (int)amortyzatorGroup.GetType().GetProperty("total").GetValue(amortyzatorGroup, null);
-
-                                if (GlobalData.GetPlayerMoney() >= CarHelper.total + partPice)
-                                {
-                                    parts.Remove("amortyzator_double_rear");
-                                    parts.Remove("sprezynaTyl_1");
-                                    parts.Remove("czapkaSprezynyTyl_1");
-
-                                    GroupInventory.Get().Add((NewGroupItem)amortyzatorGroup.GetType().GetProperty("newGroupItem").GetValue(amortyzatorGroup, null));
-
-                                    Main.mod.Logger.Log("amortyzator_double_rear + sprezynaTyl_1 + czapkaSprezynyTyl_1");
-
-                                    CarHelper.total += partPice;
-                                }
-                            }
-
-                        }
-                    }
-				}
-
-
-				if (parts.Any(x => Singleton<GameInventory>.Instance.GetItemProperty(x).SpecialGroup == 6 || Singleton<GameInventory>.Instance.GetItemProperty(x).SpecialGroup == 7) && Settings.groupParts)
-				{
-
-					for (int i = 0; i < 10; i++)
-					{
-						if (CarHelper.tiresInstance.Any() && CarHelper.rimsInstance.Any())
-						{
-							object wheelGroup = CarHelper.CreateWheelGroup(carLoader, CarHelper.rimsInstance[i]);
-							NewGroupItem newGroupItem = (NewGroupItem)wheelGroup.GetType().GetProperty("newGroupItem").GetValue(wheelGroup, null);
-
-							Tire tire = (Tire)wheelGroup.GetType().GetProperty("tire").GetValue(wheelGroup, null);
-
-							string rimName = (string)wheelGroup.GetType().GetProperty("rimName").GetValue(wheelGroup, null);
-							string tirName = (string)wheelGroup.GetType().GetProperty("tireName").GetValue(wheelGroup, null);
-							NewInventoryItem rim = (NewInventoryItem)wheelGroup.GetType().GetProperty("rimItem").GetValue(wheelGroup, null);
-							NewInventoryItem tir = (NewInventoryItem)wheelGroup.GetType().GetProperty("tireItem").GetValue(wheelGroup, null);
-
-							CarHelper.tiresInstance.RemoveAt(0);
-							CarHelper.rimsInstance.RemoveAt(0);
-							i--;
-
-							if (CarHelper.groupInventory.Any(x => x.ItemList[0].ID.Equals(rimName) && x.ItemList[0].Condition == 1f && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["ET"]) == tire.w_et && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize &&
-									x.ItemList[1].ID.Equals(tirName) && x.ItemList[1].Condition == 1f && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize)
-									&& Settings.invCheck)
-							{
-								CarHelper.dupeCount++;
-								CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.ItemList[0].ID.Equals(rimName) && x.ItemList[0].Condition == 1f && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["ET"]) == tire.w_et && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize &&
-											x.ItemList[1].ID.Equals(tirName) && x.ItemList[1].Condition == 1f && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize));
-							}
-							else
-							{
-								int partPice = (int)Mathf.Floor((Helper.GetPrice(tir) + Helper.GetPrice(rim)) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
-
-								if (GlobalData.GetPlayerMoney() >= CarHelper.total + partPice)
-								{
-									parts.Remove(tirName);
-									parts.Remove(rimName);
-
-									GroupInventory.Get().Add(newGroupItem);
-
-									Main.mod.Logger.Log(rimName + " + " + tirName);
-
-									CarHelper.total += partPice;
-								}
-							}
-
+							CarHelper.dupeCount++;
+							CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.GroupName.Equals(engineName) && x.ItemList.All(y => y.Condition == 1f && itemsEn.FirstOrDefault(z => z.GetNormalID().Equals(y.GetNormalID())) != null) && x.ItemList.Count() == itemsEn.Count()));
 						}
 						else
 						{
-							break;
+							if (GlobalData.GetPlayerMoney() >= CarHelper.total + partEnPice)
+							{
+								GroupInventory.Get().Add((NewGroupItem)engineParts.GetType().GetProperty("newGroupItem").GetValue(engineParts, null));
+
+								Main.mod.Logger.Log(engineName);
+
+								parts = parts.Where(x => !itemsEn.Select(p => p.ID.Split('(')[0]).Contains(x)).ToList();
+
+								CarHelper.total += partEnPice;
+							}
 						}
 					}
+
+
+					string amortyzator = carLoader.GetRoot().GetComponentsInChildren<PartScript>().ToList().FirstOrDefault(part => Singleton<GameInventory>.Instance.GetItemProperty(part.GetIDWithTuned()).SpecialGroup == 8).GetIDWithTuned();
+
+					if (parts.Any(x => x.Equals(amortyzator) || x.Equals("sprezynnaPrzod_1") || x.Equals("czapkaAmorPrzod_1") || x.Equals("amortyzator_double_rear") || x.Equals("sprezynaTyl_1") || x.Equals("czapkaSprezynyTyl_1")) && Settings.groupParts)
+					{
+						var amortyzatorsList = parts.Where(x => x.Equals(amortyzator) || x.Equals("sprezynnaPrzod_1") || x.Equals("czapkaAmorPrzod_1") || x.Equals("amortyzator_double_rear") || x.Equals("sprezynaTyl_1") || x.Equals("czapkaSprezynyTyl_1")).ToList();
+						int amortyzatorsListLength = amortyzatorsList.Count();
+
+						for (int i = 0; i < amortyzatorsListLength; i++)
+						{
+							if ((amortyzatorsList.Contains(amortyzator) && amortyzatorsList.Contains("sprezynnaPrzod_1") && amortyzatorsList.Contains("czapkaAmorPrzod_1")) || (amortyzatorsList.Contains("amortyzator_double_rear") && amortyzatorsList.Contains("sprezynaTyl_1") && amortyzatorsList.Contains("czapkaSprezynyTyl_1")))
+							{
+								object amortyzatorGroup = CarHelper.AmortyzatorGroup(amortyzator, "sprezynnaPrzod_1", "czapkaAmorPrzod_1");
+
+								amortyzatorsList.Remove(amortyzator);
+								amortyzatorsList.Remove("sprezynnaPrzod_1");
+								amortyzatorsList.Remove("czapkaAmorPrzod_1");
+
+								if (CarHelper.groupInventory.Any(x => x.ItemList[0].ID.Equals(amortyzator) && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynnaPrzod_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaAmorPrzod_1") && x.ItemList[2].Condition == 1f) && Settings.invCheck)
+								{
+									CarHelper.dupeCount++;
+									CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.ItemList[0].ID.Equals(amortyzator) && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynnaPrzod_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaAmorPrzod_1") && x.ItemList[2].Condition == 1f));
+								}
+								else
+								{
+									int partPice = (int)amortyzatorGroup.GetType().GetProperty("total").GetValue(amortyzatorGroup, null);
+
+									if (GlobalData.GetPlayerMoney() >= CarHelper.total + partPice)
+									{
+										parts.Remove(amortyzator);
+										parts.Remove("sprezynnaPrzod_1");
+										parts.Remove("czapkaAmorPrzod_1");
+
+										GroupInventory.Get().Add((NewGroupItem)amortyzatorGroup.GetType().GetProperty("newGroupItem").GetValue(amortyzatorGroup, null));
+
+										Main.mod.Logger.Log(amortyzator + " + sprezynnaPrzod_1 + czapkaAmorPrzod_1");
+
+										CarHelper.total += partPice;
+									}
+								}
+
+							}
+
+							if (amortyzatorsList.Contains("amortyzator_double_rear") && amortyzatorsList.Contains("sprezynaTyl_1") && amortyzatorsList.Contains("czapkaSprezynyTyl_1"))
+							{
+								object amortyzatorGroup = CarHelper.AmortyzatorGroup("amortyzator_double_rear", "sprezynaTyl_1", "czapkaSprezynyTyl_1");
+
+								amortyzatorsList.Remove("amortyzator_double_rear");
+								amortyzatorsList.Remove("sprezynaTyl_1");
+								amortyzatorsList.Remove("czapkaSprezynyTyl_1");
+
+								if (CarHelper.groupInventory.Any(x => x.ItemList[0].ID.Equals("amortyzator_double_rear") && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynaTyl_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaSprezynyTyl_1") && x.ItemList[2].Condition == 1f) && Settings.invCheck)
+								{
+									CarHelper.dupeCount++;
+									CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.ItemList[0].ID.Equals("amortyzator_double_rear") && x.ItemList[0].Condition == 1f && x.ItemList[1].ID.Equals("sprezynaTyl_1") && x.ItemList[1].Condition == 1f && x.ItemList[2].ID.Equals("czapkaSprezynyTyl_1") && x.ItemList[2].Condition == 1f));
+								}
+								else
+								{
+									int partPice = (int)amortyzatorGroup.GetType().GetProperty("total").GetValue(amortyzatorGroup, null);
+
+									if (GlobalData.GetPlayerMoney() >= CarHelper.total + partPice)
+									{
+										parts.Remove("amortyzator_double_rear");
+										parts.Remove("sprezynaTyl_1");
+										parts.Remove("czapkaSprezynyTyl_1");
+
+										GroupInventory.Get().Add((NewGroupItem)amortyzatorGroup.GetType().GetProperty("newGroupItem").GetValue(amortyzatorGroup, null));
+
+										Main.mod.Logger.Log("amortyzator_double_rear + sprezynaTyl_1 + czapkaSprezynyTyl_1");
+
+										CarHelper.total += partPice;
+									}
+								}
+
+							}
+						}
+					}
+
+
+					if (parts.Any(x => Singleton<GameInventory>.Instance.GetItemProperty(x).SpecialGroup == 6 || Singleton<GameInventory>.Instance.GetItemProperty(x).SpecialGroup == 7) && Settings.groupParts)
+					{
+
+						for (int i = 0; i < 10; i++)
+						{
+							if (CarHelper.tiresInstance.Any() && CarHelper.rimsInstance.Any())
+							{
+								object wheelGroup = CarHelper.CreateWheelGroup(carLoader, CarHelper.rimsInstance[i]);
+								NewGroupItem newGroupItem = (NewGroupItem)wheelGroup.GetType().GetProperty("newGroupItem").GetValue(wheelGroup, null);
+
+								Tire tire = (Tire)wheelGroup.GetType().GetProperty("tire").GetValue(wheelGroup, null);
+
+								string rimName = (string)wheelGroup.GetType().GetProperty("rimName").GetValue(wheelGroup, null);
+								string tirName = (string)wheelGroup.GetType().GetProperty("tireName").GetValue(wheelGroup, null);
+								NewInventoryItem rim = (NewInventoryItem)wheelGroup.GetType().GetProperty("rimItem").GetValue(wheelGroup, null);
+								NewInventoryItem tir = (NewInventoryItem)wheelGroup.GetType().GetProperty("tireItem").GetValue(wheelGroup, null);
+
+								CarHelper.tiresInstance.RemoveAt(0);
+								CarHelper.rimsInstance.RemoveAt(0);
+								i--;
+
+								if (CarHelper.groupInventory.Any(x => x.ItemList[0].ID.Equals(rimName) && x.ItemList[0].Condition == 1f && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["ET"]) == tire.w_et && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize &&
+										x.ItemList[1].ID.Equals(tirName) && x.ItemList[1].Condition == 1f && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize)
+										&& Settings.invCheck)
+								{
+									CarHelper.dupeCount++;
+									CarHelper.groupInventory.Remove(CarHelper.groupInventory.FirstOrDefault(x => x.ItemList[0].ID.Equals(rimName) && x.ItemList[0].Condition == 1f && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["ET"]) == tire.w_et && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[0].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize &&
+												x.ItemList[1].ID.Equals(tirName) && x.ItemList[1].Condition == 1f && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Profile"]) == (int)tire.w_tireSize && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Width"]) == (int)tire.w_wheelWidth && Convert.ToInt32(x.ItemList[1].extraParameters.GetHashTable()["Size"]) == (int)tire.w_rimSize));
+								}
+								else
+								{
+									int partPice = (int)Mathf.Floor((Helper.GetPrice(tir) + Helper.GetPrice(rim)) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+
+									if (GlobalData.GetPlayerMoney() >= CarHelper.total + partPice)
+									{
+										parts.Remove(tirName);
+										parts.Remove(rimName);
+
+										GroupInventory.Get().Add(newGroupItem);
+
+										Main.mod.Logger.Log(rimName + " + " + tirName);
+
+										CarHelper.total += partPice;
+									}
+								}
+
+							}
+							else
+							{
+								break;
+							}
+						}
+					}
+
+
+					var partsListSorted = (from part in parts
+										   orderby Singleton<GameInventory>.Instance.GetItemProperty(part).Price descending
+										   select part).ToList();
+
+					Inventory.Get().StartCoroutine(CarHelper.AddManyParts(carLoader, partsListSorted));
+
+					return;
 				}
-
-
-				var partsListSorted = (from part in parts
-									   orderby Singleton<GameInventory>.Instance.GetItemProperty(part).Price descending
-									   select part).ToList();
-
-				Inventory.Get().StartCoroutine(CarHelper.AddManyParts(carLoader, partsListSorted));
-
-				return;
 			}
 
 

@@ -133,7 +133,26 @@ namespace MiniTweaksToolbox
 			return new { parts = parts, tiresInstance = tiresInstance, rimsInstance = rimsInstance };
 		}
 
-		public static object EngineParts(CarLoader carLoader)
+
+        public static List<string> GetAllBuyablePartsEngine()
+        {
+            List<string> parts = new List<string>();
+
+            Component[] componentsInChildren = GameScript.Get().GetEngineStand().GetComponentsInChildren<PartScript>();
+            foreach (PartScript partScript in componentsInChildren)
+            {
+                if ((partScript.GetCondition() != 1f || partScript.IsUnmounted()) && 
+					(!partScript.gameObject.name.Contains("gearbox") || !partScript.gameObject.name.Contains("rozrusznik") || !partScript.gameObject.name.Contains("kolektor")))
+                {
+                    parts.Add(partScript.gameObject.name.Split('(')[0]);
+                }
+            }
+
+            return parts;
+        }
+
+
+        public static object EngineParts(CarLoader carLoader)
 		{
 			GameObject engine = carLoader.GetEngine();
 			InteractiveObject iO = engine.GetComponent<InteractiveObject>();
@@ -492,7 +511,90 @@ namespace MiniTweaksToolbox
 		}
 
 
-		public static void Paint(CarLoader carLoader)
+		public static IEnumerator AddManyPartsEngine(List<string> partsListSorted)
+		{
+			int count = 0;
+
+			for (int i = 0; i < partsListSorted.Count(); i++)
+			{
+				string partID = partsListSorted[i];
+				//Main.mod.Logger.Log(partID);
+
+				NewInventoryItem newInventoryItem;
+
+				if (Singleton<GameInventory>.Instance.GetItemProperty("t_" + partID).Price != 0 && GlobalData.GetPlayerMoney() >= ((Singleton<GameInventory>.Instance.GetItemProperty("t_" + partID).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount")) + total) && Settings.tunnedParts)
+				{
+					partID = "t_" + partID;
+				}
+
+				newInventoryItem = new NewInventoryItem(partID, 1f, Inventory.SetColor(Color.white), true);
+
+
+				if (Settings.itemQuality)
+				{
+					newInventoryItem.extraParameters.Add("Quality", Settings.quality);
+				}
+
+                int partPice = (int)Mathf.Floor(Helper.GetPrice(newInventoryItem) * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+
+
+				if (GlobalData.GetPlayerMoney() >= total + partPice)
+				{
+					if (inventory.Any(x => partID.Equals(x.ID) && x.Condition == 1f) && Settings.invCheck)
+					{
+						dupeCount++;
+						inventory.Remove(inventory.FirstOrDefault(x => partID.Equals(x.ID) && x.Condition == 1f));
+					}
+					else if (partID.Equals("#Dummy"))
+					{
+						count++;
+					}
+					else
+					{
+						Main.mod.Logger.Log(partID);
+						Inventory.Get().Add(newInventoryItem);
+						total += partPice;
+
+						count++;
+					}
+
+				}
+
+				yield return new WaitForEndOfFrame();
+			}
+
+			if (dupeCount != 0 && dupeCount == partsListSorted.Count() && Settings.invCheck)
+			{
+				UIManager.Get().ShowPopup("MiniTweaksToolbox Mod:", $"All parts were already in the inventory", PopupType.Normal);
+			}
+			else if (total == 0)
+			{
+				UIManager.Get().ShowPopup("MiniTweaksToolbox Mod:", "No parts were buyed", PopupType.Normal);
+			}
+			else
+			{
+				if (dupeCount != 0 && Settings.invCheck)
+				{
+					UIManager.Get().ShowPopup("MiniTweaksToolbox Mod:", $"{dupeCount} {(dupeCount == 1 ? "part" : "parts")} were already in the inventory", PopupType.Normal);
+				}
+				else if (count == partsListSorted.Count())
+				{
+					UIManager.Get().ShowPopup("MiniTweaksToolbox Mod:", "All discovered parts were buyed", PopupType.Normal);
+				}
+				else
+				{
+					UIManager.Get().ShowPopup("MiniTweaksToolbox Mod:", $"{partsListSorted.Count() - count} {(partsListSorted.Count() - count == 1 ? "part" : "parts")} weren't buyed", PopupType.Normal);
+				}
+
+				GlobalData.AddPlayerMoney(-total);
+				UIManager.Get().ShowPopup("MiniTweaksToolbox Mod:", "All parts cost: " + Helper.MoneyToString(total), PopupType.Buy);
+			}
+
+			yield break;
+		}
+
+
+        public static void Paint(CarLoader carLoader)
 		{
 			carColorCheck = "color";
 			GameScript.Get().GetCarPaintLogic().SetCarLoader(carLoader);
