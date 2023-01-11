@@ -2,7 +2,7 @@
 ## Overview
 CMS2018 Mod
 ## Features
-Features in this section are always enable, if you don't want or don't like any feature in this section you have to change the code :| (if some people complain about a feature that shouldn't be always enable, that feature can be migrated to the **Menu** section)
+Features in this section are always enable, if you don't want or don't like any feature in this section you have to change the code :| (features can be migrated to other section)
 
 ***<details><summary>Sell Groups Parts Per Conditon</summary>***
   
@@ -11,7 +11,7 @@ Features in this section are always enable, if you don't want or don't like any 
 
 ***<details><summary>Engine Crane Positioning</summary>***
   
-  The engine crane its gonna be facing the engine (some DLC cars have engines in the trunk, instead of the engine crane be in the front its gonna be on the back of the car)
+  The engine crane its gonna be facing the engine (some cars have engines in the trunk, instead of the engine crane be in the front its gonna be on the back of the car)
 </details>
 
 ***<details><summary>See Car Value</summary>***
@@ -20,7 +20,7 @@ Features in this section are always enable, if you don't want or don't like any 
 </details>
 
 ## Menu
-Features in this section can be turn on/off (if some people complain about a feature that should be always enable, that feature can be migrated to the **Features** section)
+Features in this section can be turn on/off (features can be migrated to other section)
 
 ***<details><summary>Tunned Parts</summary>***
   
@@ -57,6 +57,11 @@ Features in this section can be turn on/off (if some people complain about a fea
   With auto select enable when you select a part to mount its gonna choose the best one in the inventory
 </details>
 
+***<details><summary>Original Parts</summary>***
+  
+  With original parts enable when you select a part to mount its gonna choose a part which has the same condition has the previous one, if there isn't any will choose the best one (this only apllies when auto select is enable)
+</details>
+
 ***<details><summary>No Oil Drain</summary>***
   
   With no oil drain enable once you hit the max amount of oil in the engine, the gallon will forcibly stop (in some cases will charge you for 20$)
@@ -68,7 +73,7 @@ Features in this section can be turn on/off (if some people complain about a fea
 </details>
 
 ## Keybinds
-Features in this section are only executed when the correct keybind are pressed
+Features in this section are only executed when the correct keybind are pressed (features can be migrated to other section)
 
 ***<details><summary>Player</summary>***
   
@@ -87,7 +92,7 @@ Features in this section are only executed when the correct keybind are pressed
   | Buy single parts or cars      |  `B`  |
   | Buy all parts at once         |  `J`  |
   
-  **Buy single parts or cars**: When you are in the garage you can any part, when you are on a shed or junkward you can buy the car
+  **Buy single parts or cars**: When you are in the garage you can buy any part, when you are on a shed or junkward you can buy the car
   
   **Buy all parts at once**: When the car is from the order is gonna buy all discovered parts (you have to open the car info/summary to the game update the discovered parts, if you have the undiscovered parts enable its gonna buy all parts of the order) (if you have the group parts enable its gonna buy the all parts, and the parts that can be grouped already grouped and balanced)
 </details>
@@ -96,6 +101,7 @@ Features in this section are only executed when the correct keybind are pressed
   
   | Feature                           |         Key         |
   | --------------------------------- |:-------------------:|
+  | Swap Engine of the car            |         `O`         |
   | Open or close hood                |  `Numpad 8` or `8`  |
   | Open or close front left door     |  `Numpad 4` or `4`  |
   | Open or close front right door    |  `Numpad 6` or `6`  |

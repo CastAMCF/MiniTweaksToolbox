@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 
@@ -161,10 +162,193 @@ namespace MiniTweaksToolbox
 			GlobalData.AddPlayerMoney(price);
 		}
 
+
+        public static void ShowSwapEngines(string[] ID)
+        {
+            GameMode.Get().SetCurrentMode(gameMode.UI);
+            UIManager.Get().SetIODescription(string.Empty, UIHelper.None);
+
+            UIManager.Get().StartCoroutine(CreateDownMenuFromItems(ID));
+        }
+
+        public static bool CanUnmountEngine(CarLoader carLoader)
+        {
+            GameObject engine = carLoader.GetEngine();
+            InteractiveObject iO = engine.GetComponent<InteractiveObject>();
+
+            if (iO == null)
+            {
+                return false;
+            }
+
+            string part = iO.CanUnmountGroup();
+            if (!string.IsNullOrEmpty(part))
+            {
+                GameMode.Get().SetCurrentMode(gameMode.UI);
+                UIManager.Get().ShowInfoWindow(string.Format(Localization.Instance.Get("GUI_EngineUnmountCrainWarning"), Localization.Instance.Get("!" + part)));
+                return false;
+            }
+
+            if (carLoader.GetOilLevel() > 0f)
+            {
+                GameMode.Get().SetCurrentMode(gameMode.UI);
+                UIManager.Get().ShowInfoWindow(Localization.Instance.Get("GUI_EngineOilCrain"));
+                return false;
+            }
+
+			return true;
+        }
+
+        public static bool CanMountEngine(CarLoader carLoader)
+        {
+            GameObject engine = carLoader.GetEngine();
+            InteractiveObject iO = engine.GetComponent<InteractiveObject>();
+
+            if (iO == null)
+            {
+                return false;
+            }
+
+            string text = iO.CanMountGroup();
+            if (!string.IsNullOrEmpty(text))
+            {
+                GameMode.Get().SetCurrentMode(gameMode.UI);
+                UIManager.Get().ShowInfoWindow(string.Format(Localization.Instance.Get("GUI_EngineMountCrainWarning"), Localization.Instance.Get(text)));
+                return false;
+            }
+
+            return true;
+        }
+
+        private static IEnumerator CreateDownMenuFromItems(string[] itemName)
+        {
+            UIManager.Get().transform.Find("NewChooseItemsMenu/ItemPreview/NewInventoryItem").gameObject.SetActive(false);
+            UIManager.Get().transform.Find("NewChooseItemsMenu/ItemPreview/NewInventoryGroupItem").gameObject.SetActive(false);
+
+            string pathToInsertItems = "ItemsToChoose/SmallItems/Scroll View/Viewport/Content";
+            yield return UIManager.Get().StartCoroutine(UIManager.Get().cleanElement(pathToInsertItems));
+            UIManager.Get().SmallItemsSliderStepSize = 0f;
+            UIManager.Get().SmallItemsPrevIndex = -1;
+            UIManager.Get().SmallItemsLeftBorderIndex = 0;
+            UIManager.Get().SmallItemsRightBorderIndex = 5;
+            UIManager.Get().SmallItemsAmount = 0;
+            UIManager.Get().SmallItemsSliderValue = 0f;
+			int index = 0;
+
+            chooseEngine = true;
+
+            List<NewInventoryItem> list = new List<NewInventoryItem>();
+
+            List<string> items = itemName.ToList();
+			foreach (string text in items)
+			{
+				NewInventoryItem item = new NewInventoryItem(text, true);
+				list.Add(item);
+			}
+            UIManager.Get().CurrentSelectedBigItem = 0;
+
+            if (list == null || list.Count == 0)
+            {
+                UIManager.Get().Hide("CreateGroupMenu");
+                UIManager.Get().Hide("NewChooseItemsMenu");
+                UIManager.Get().Hide("ItemsToChoose");
+                GameScript.Get().PlayRepairSound(false);
+
+                if (GameScript.Get())
+                {
+                    GameScript.Get().CanOpenPieMenu = true;
+                }
+
+                chooseEngine = false;
+                UIManager.Get().ShowInfoWindow(Localization.Instance.Get("GUI_NieMaPrzedmiotowDoZalozenia"));
+                yield break;
+            }
+
+            UIManager.Get().Show("NewChooseItemsMenu");
+
+            foreach (NewInventoryItem newInventoryItem in list)
+            {
+                Action action = delegate ()
+				{
+					if (CanUnmountEngine(GameScript.Get().GetIOMouseOverCarLoader2()) && CanMountEngine(GameScript.Get().GetIOMouseOverCarLoader2()))
+					{
+                        Main.mod.Logger.Log(newInventoryItem.ID);
+                        GameScript.Get().GetIOMouseOverCarLoader2().SetEngineSwap(newInventoryItem.ID);
+
+                        NewGroupItem newGroupItem = new NewGroupItem();
+                        newGroupItem.GroupName = newInventoryItem.ID;
+                        newGroupItem.ItemList = new List<NewInventoryItem>();
+                        newGroupItem.IsNormalGroup = false;
+
+                        GameScript.Get().GetIOMouseOverCarLoader2().StartCoroutine(GameScript.Get().GetIOMouseOverCarLoader2().SwapEngine(newGroupItem));
+                    }
+
+                    chooseEngine = false;
+                    UIManager.Get().Hide("NewChooseItemsMenu");
+                };
+
+				NewHash hash = new NewHash(new object[]
+				{
+                        "WindowType",
+                        "NewChooseEngineMenu",
+                        "Type",
+                        "RunAction",
+                        "Action",
+                        action,
+                        "ItemType",
+						"Single",
+						"Path",
+						"NewChooseItemsMenu/ItemPreview",
+						"Index",
+						index
+				});
+				GameObject go = UIManager.Get().CreateInventoryItem(newInventoryItem, pathToInsertItems, hash, SortType.ByCondition, string.Empty, "All");
+
+				if (go != null)
+				{
+					UIManager.Get().SmallItemsAmount++;
+                    index++;
+                }
+            }
+            UIManager.Get().transform.Find("ItemsToChoose").GetComponent<ItemsToChoose>().SetListOfItems(list);
+
+            if (UIManager.Get().SmallItemsAmount > 6)
+            {
+                Vector2 vector = UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().pivot;
+                vector.x = 0f;
+                UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().pivot = vector;
+                UIManager.Get().SmallItemsSliderValue = -346.6f;
+                vector = UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().anchoredPosition;
+                vector.x = -346.6f;
+                UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().anchoredPosition = vector;
+            }
+            else
+            {
+                Vector2 vector2 = UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().pivot;
+                vector2.x = 0.5f;
+                UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().pivot = vector2;
+                UIManager.Get().SmallItemsSliderValue = 0f;
+                vector2 = UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().anchoredPosition;
+                vector2.x = 0f;
+                UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetComponent<RectTransform>().anchoredPosition = vector2;
+            }
+
+            Transform t = UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetChild(0);
+            if (t != null && UIManager.Get().SmallItemsAmount > 6)
+            {
+                float num2 = t.GetComponent<RectTransform>().localScale.x * t.GetComponent<RectTransform>().sizeDelta.x;
+                Transform child = UIManager.Get().transform.Find("ItemsToChoose/SmallItems/Scroll View/Viewport/Content").GetChild(1);
+                var spaceBetweenItems = child.GetComponent<RectTransform>().localPosition.x - (t.GetComponent<RectTransform>().localPosition.x + num2);
+                UIManager.Get().SmallItemsSliderStepSize = num2 * 0.9f + spaceBetweenItems * 0.9f;
+            }
+            yield break;
+        }
+
         public static bool dupeBool;
         public static string dupeText;
         public static string playerState = "walk";
         public static bool jump = false;
         public static Vector3 playerPosition;
+        public static bool chooseEngine = false;
     }
 }

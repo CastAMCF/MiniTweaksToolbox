@@ -29,10 +29,21 @@ namespace MiniTweaksToolbox
 					}
 					else if (Settings.autoSelect)
 					{
-						NewInventoryItem newInventoryItem = (from i in Inventory.Get().GetItems(ID[0])
+                        NewInventoryItem newInventoryItem = (from i in Inventory.Get().GetItems(ID[0])
                                                              orderby Singleton<GameInventory>.Instance.GetItemProperty(i.ID).Price descending
                                                              orderby i.Condition descending
-															 select i).ToList()[0];
+                                                             select i).ToList()[0];
+
+						if (Settings.originalParts)
+						{
+                            if (GameScript.Get().GetPartMouseOver().GetCondition() > 0.40)
+                            {
+                                if (Inventory.Get().GetItems(ID[0]).Where(x => x.Condition == GameScript.Get().GetPartMouseOver().GetCondition()).Any())
+                                {
+                                    newInventoryItem = Inventory.Get().GetItems(ID[0]).FirstOrDefault(x => x.Condition == GameScript.Get().GetPartMouseOver().GetCondition());
+                                }
+                            }
+                        }
 
 						__instance.ShowPopup(Localization.Instance.Get("PopUp_NewItem"), Singleton<GameInventory>.Instance.GetItemLocalizeName(newInventoryItem.ID) + " (" + Helper.ConditionToString(newInventoryItem.Condition) + ")", PopupType.Normal);
 
@@ -134,17 +145,70 @@ namespace MiniTweaksToolbox
 			if (windowName.Equals("MountGroup") && Settings.autoSelect)
 			{
 				List<NewInventoryItem> newInventoryItems = new List<NewInventoryItem>();
+				var originalParts = new List<KeyValuePair<string, float>>();
 
-				foreach (string item in GameScript.Get().GetGroupOfItems().ToArray())
+				if (Settings.originalParts)
+				{
+					Transform parent = GameScript.Get().GetPartMouseOver().gameObject.transform;
+
+					if (parent.childCount == 0)
+					{
+						parent = parent.parent;
+					}
+
+					originalParts.Add(new KeyValuePair<string, float>(parent.GetComponent<PartScript>().GetID(), parent.GetComponent<PartScript>().GetCondition()));
+
+					string index = parent.name.Split('(')[1].Replace(")", "");
+                    if (parent.GetComponent<PartScript>().GetID().Contains("tlok"))
+					{
+                        parent = parent.parent;
+
+						for (int i = 0; i < parent.childCount; i++)
+						{
+							if (parent.GetChild(i).name.Contains("pierscienie") && parent.GetChild(i).name.Contains(index))
+							{
+								originalParts.Add(new KeyValuePair<string, float>(parent.GetChild(i).GetComponent<PartScript>().GetID(), parent.GetChild(i).GetComponent<PartScript>().GetCondition()));
+							}
+						}
+                    }
+					else
+					{
+                        for (int i = 0; i < parent.childCount; i++)
+                        {
+                            originalParts.Add(new KeyValuePair<string, float>(parent.GetChild(i).GetComponent<PartScript>().GetID(), parent.GetChild(i).GetComponent<PartScript>().GetCondition()));
+                        }
+                    }
+
+				}
+
+                foreach (string item in GameScript.Get().GetGroupOfItems().ToArray())
 				{
 					List<NewInventoryItem> newInventoryItem = (from i in Inventory.Get().GetItems(item)
                                                                orderby Singleton<GameInventory>.Instance.GetItemProperty(i.ID).Price descending
                                                                orderby i.Condition descending
 															   select i).ToList();
 
-					if (newInventoryItem.Count() > 0)
+                    if (newInventoryItem.Count() > 0)
 					{
-						newInventoryItems.Add(newInventoryItem[0]);
+						if (Settings.originalParts)
+							for (int i = 0; i < originalParts.Count(); i++)
+							{
+								if (originalParts[i].Key.Equals(item))
+								{
+									if (originalParts[i].Value > 0.40)
+									{
+										if (Inventory.Get().GetItems(item).Where(x => x.Condition == originalParts[i].Value).Any())
+										{
+											newInventoryItem[0] = Inventory.Get().GetItems(item).FirstOrDefault(x => x.Condition == originalParts[i].Value);
+										}
+									}
+
+									originalParts.RemoveAt(i);
+									break;
+								}
+							}
+
+                        newInventoryItems.Add(newInventoryItem[0]);
 						Inventory.Get().Delete(newInventoryItem[0]);
 					}
                     else

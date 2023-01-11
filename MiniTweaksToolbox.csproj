@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CharacterMotor_Patcher.cs" />
+    <Compile Include="ItemsToChoose_Patcher.cs" />
     <Compile Include="PuszkaWlewOleju_Patcher.cs" />
     <Compile Include="ToolsMoveManager_Patcher.cs" />
     <Compile Include="FPSInputController_Patcher.cs" />
