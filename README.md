@@ -2,7 +2,7 @@
 ## Overview
 CMS2018 Mod
 ## Features
-Features in this section are always enable, if you don't want or don't like any feature in this section you have to change the code :| (features can be migrated to other section)
+Features in this section are always enable, if you don't want or don't like any feature in this section you have to change the code :|
 
 ***<details><summary>Sell Groups Parts Per Conditon</summary>***
   
@@ -16,11 +16,31 @@ Features in this section are always enable, if you don't want or don't like any 
 
 ***<details><summary>See Car Value</summary>***
   
-  In sheds and on the junkward every time your mouse is over a car its gonna show that car value on the top right (if you have "Experienced Auctioneer" skill it will show you the the average value of the car)
+  In sheds and junkyards, whenever the mouse is over a car its gonna show that car value on the top right (if you have "Experienced Auctioneer" skill it will show you the the average value of the car)
+</details>
+
+***<details><summary>See Car Name</summary>***
+  
+  In sheds and junkyards, whenever the mouse is over a car its gonna show that car name on the top right
+</details>
+
+***<details><summary>Get Cars Count</summary>***
+  
+  In sheds and junkyards, whenever the mouse is over a car its gonna show the number of already owned car with the same name
+</details>
+
+***<details><summary>Better Engine Stand</summary>***
+  
+  If there aren't any group engines in the inventory when you select to add a engine, instead of saying that there aren't any engines in inventory and being force to add a diagram to start to build from there, a custom menu gonna prompt where you can choose the car (from the cars that are in the garage) which has the engine you wanna build
+</details>
+
+***<details><summary>Mod Menu Options</summary>***
+  
+  Menu features can be toogle on and off in the *Unity Mod Manager* and the keybinds can be added and changed for every feature (above this section). A little info about the the feaures is present too
 </details>
 
 ## Menu
-Features in this section can be turn on/off (features can be migrated to other section)
+Features in this section can be turn on/off (Keybinds can be added in Mod Menu Options)
 
 ***<details><summary>Tunned Parts</summary>***
   
@@ -29,7 +49,7 @@ Features in this section can be turn on/off (features can be migrated to other s
 
 ***<details><summary>Group Parts</summary>***
   
-  With group parts enable when you buy tires and wheels they it will be on a group already balanced, the suspension and engine group is buyable too
+  With group parts enable when you buy tires and wheels they it will be on a group already balanced, the suspension and engine group are buyable too
 </details>
 
 ***<details><summary>Custom License Plates</summary>***
@@ -44,7 +64,7 @@ Features in this section can be turn on/off (features can be migrated to other s
 
 ***<details><summary>Inventory Check</summary>***
   
-  With inventory check enable when you buy a part that you already have its gonna warning you that you already have it, you can still buy it if you press B again
+  With inventory check enable when you buy a part that you already have its gonna warning you that you already have it, you can still buy it if you press the buy key again
 </details>
 
 ***<details><summary>Painted Parts</summary>***
@@ -73,19 +93,19 @@ Features in this section can be turn on/off (features can be migrated to other s
 </details>
 
 ## Keybinds
-Features in this section are only executed when the correct keybind are pressed (features can be migrated to other section)
+Features in this section are only executed when the correct keybind are pressed (These are the default keybinds, this can be changed in Mod Menu Options)
 
 ***<details><summary>Player</summary>***
   
-  | Feature       |               Key               |
-  | ------------- |:-------------------------------:|
-  | Sprint        |  `Left Shift` or `Right Shift`  |
-  | Jump          |             `Space`             |
-  | Reset Postion |               `R`               |
+  | Feature       |      Key       |
+  | ------------- |:--------------:|
+  | Sprint        |  `Left Shift`  |
+  | Jump          |    `Space`     |
+  | Reset Postion |      `R`       |
   
   **Jump**: The jump has no cooldown, you can jump in the air
   
-  **Reset Postion**: This works where the **Sprint** and **Jump** are applied, except in sheds
+  **Reset Postion**: This works where the **Sprint** and **Jump** are applied
 </details>
 
 ***<details><summary>Shopping</summary>***
@@ -95,23 +115,25 @@ Features in this section are only executed when the correct keybind are pressed 
   | Buy single parts or cars      |  `B`  |
   | Buy all parts at once         |  `J`  |
   
-  **Buy single parts or cars**: When you are in the garage you can buy any part, when you are on a shed or junkward you can buy the car
+  **Buy single parts or cars**: When you are in the garage you can buy any part, when you are on a shed or junkyard you can buy the car
   
-  **Buy all parts at once**: When the car is from the order is gonna buy all discovered parts (you have to open the car info/summary to the game update the discovered parts, if you have the undiscovered parts enable its gonna buy all parts of the order) (if you have the group parts enable its gonna buy the all parts, and the parts that can be grouped already grouped and balanced)
+  **Buy all parts at once**: When the car is from the order is gonna buy all discovered parts (you have to open the car info/summary to the game update the discovered parts, if you have the undiscovered parts enable its gonna buy all parts of the order) (if you have the group parts enable its gonna buy the all parts, and the parts that can be grouped will be already grouped and balanced)
 </details>
 
 ***<details><summary>Car</summary>***
   
-  | Feature                           |         Key         |
-  | --------------------------------- |:-------------------:|
-  | Swap Engine of the car            |         `O`         |
-  | Open or close hood                |  `Numpad 8` or `8`  |
-  | Open or close front left door     |  `Numpad 4` or `4`  |
-  | Open or close front right door    |  `Numpad 6` or `6`  |
-  | Open or close rear left door      |  `Numpad 1` or `1`  |
-  | Open or close rear right door     |  `Numpad 3` or `3`  |
-  | Open or close trunk               |  `Numpad 2` or `2`  |
-  | Open or close all car parts       |  `Numpad 5` or `5`  |
+  | Feature                           |      Key     |
+  | --------------------------------- |:------------:|
+  | Swap Engine                       |      `O`     |
+  | Open or close hood                |  `Numpad 8`  |
+  | Open or close front left door     |  `Numpad 4`  |
+  | Open or close front right door    |  `Numpad 6`  |
+  | Open or close rear left door      |  `Numpad 1`  |
+  | Open or close rear right door     |  `Numpad 3`  |
+  | Open or close trunk               |  `Numpad 2`  |
+  | Open or close all car parts       |  `Numpad 5`  |
+
+  **Swap Engine**: The quality represents the price of all parts to build the engine
 </details>
 
 ***<details><summary>Tools</summary>***
@@ -135,8 +157,26 @@ Features in this section are only executed when the correct keybind are pressed 
   
   | Feature           |  Key  |
   | ----------------- |:-----:|
-  | Toggle Radio      |  `V`  |
+  | Toggle Radio      |  `F`  |
   | Next Song         |  `N`  |
+</details>
+
+***<details><summary>Other</summary>***
+  
+  | Feature            |      Key      |
+  | ------------------ |:-------------:|
+  | Xray               |      `X`      |
+  | Special Xray       |      `Z`      |
+  | Car Xray           |      `V`      |
+  | Delete All Parts   |  `Backslash`  |
+  
+  **Xray**: Highlights in cyan all shelfs/junk cars that have at least one part in them
+
+  **Special Xray**: Highlights in green the shelf/car that have the crate/map in it. _Every time_ a shed/junkyard is generated spawn **one**: ***Crate*** (Shed) | ***Map*** (Junkyard)
+
+  **Car Xray**: Highlights in red all cars that are buyable
+  
+  **Delete All Parts**: When it says delete it means **delete** any money will not come when this used (**Important**: this option deletes everything from the invetory even unsellable parts)
 </details>
 
 ## Installation
@@ -149,4 +189,5 @@ Features in this section are only executed when the correct keybind are pressed 
 
 ## Credits
 Original written by [Puzzola75](https://steamcommunity.com/app/645630/discussions/1/1814296273125911667/) on Steam. [DrSteam1111](https://github.com/DrSteam1111/QuickShop) & [blo3mmm](https://github.com/blo3mmm) & [3P1CBOSS84](https://github.com/3P1CBOSS84/Quickshop-2.0) for the original Github Repo <br>
-The menu options was taken from here [QoL Tweaks](https://www.nexusmods.com/carmechanicsimulator2018/mods/23) many thanks to the author [Eravonic](https://www.nexusmods.com/carmechanicsimulator2018/users/128492483) for the amazing mod
+The ingame menu options was taken from here [QoL Tweaks](https://www.nexusmods.com/carmechanicsimulator2018/mods/23) many thanks to the author [Eravonic](https://www.nexusmods.com/carmechanicsimulator2018/users/128492483) for the amazing mod
+The mod menu options ModKit was taken and ported from here [ToyBox](https://github.com/cabarius/ToyBox/) ([ModKit](https://github.com/cabarius/ToyBox/tree/main/ModKit))
